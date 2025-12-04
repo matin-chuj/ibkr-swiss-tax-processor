@@ -8,9 +8,16 @@ import numpy as np
 from datetime import datetime
 from pathlib import Path
 import json
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional
 import requests
 from io import StringIO
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 class IBKRTaxProcessor:
     """Main processor for IBKR statements"""
@@ -48,152 +55,289 @@ class IBKRTaxProcessor:
         return df
     
     def parse_ibkr_statement(self):
-        """Parse IBKR statement into organized sections"""
+        """Parse IBKR statement into organized sections with dynamic header detection"""
         df = self.read_csv()
         
-        current_section = None
+        logging.info(f"Loaded CSV with {len(df)} rows")
+        
+        # Identify sections dynamically
         section_data = {}
+        current_section = None
+        section_headers = {}
         
         for idx, row in df.iterrows():
-            if pd.isna(row[0]):
+            # Skip completely empty rows
+            if row.isna().all():
                 continue
-                
-            # Identify section
-            if row[0] in ['Trades', 'Dividends', 'Withholding Tax', 'Fees', 
-                         'Open Positions', 'Cash Report', 'Interest']:
-                current_section = row[0]
+            
+            first_col = str(row[0]).strip() if not pd.isna(row[0]) else ''
+            second_col = str(row[1]).strip() if len(row) > 1 and not pd.isna(row[1]) else ''
+            
+            # Detect section start (e.g., "Trades", "Dividends", etc.)
+            if first_col in ['Trades', 'Dividends', 'Withholding Tax', 'Fees', 
+                            'Open Positions', 'Cash Report', 'Interest', 'Change in Dividend Accruals']:
+                current_section = first_col
                 if current_section not in section_data:
                     section_data[current_section] = []
+                    section_headers[current_section] = None
+                logging.debug(f"Found section: {current_section}")
+                continue
             
-            if current_section:
+            # Detect section headers (rows with "Header" in second column)
+            if current_section and second_col == 'Header':
+                # Store the header row for this section
+                section_headers[current_section] = row.tolist()
+                logging.debug(f"Found header for {current_section}: {section_headers[current_section][:5]}")
+                continue
+            
+            # Collect data rows (rows with "Data" in second column)
+            if current_section and second_col == 'Data':
                 section_data[current_section].append(row.tolist())
         
-        # Process each section
-        if 'Trades' in section_data:
-            self._process_trades(section_data['Trades'])
-        if 'Dividends' in section_data:
-            self._process_dividends(section_data['Dividends'])
-        if 'Withholding Tax' in section_data:
-            self._process_withholding_tax(section_data['Withholding Tax'])
-        if 'Fees' in section_data:
-            self._process_fees(section_data['Fees'])
-        if 'Open Positions' in section_data:
-            self._process_open_positions(section_data['Open Positions'])
-        if 'Interest' in section_data:
-            self._process_interest(section_data['Interest'])
+        # Process each section with its headers
+        for section_name, rows in section_data.items():
+            logging.info(f"Processing section '{section_name}' with {len(rows)} data rows")
+            
+            if section_name == 'Trades':
+                self._process_trades_improved(rows, section_headers.get(section_name))
+            elif section_name == 'Dividends':
+                self._process_dividends_improved(rows, section_headers.get(section_name))
+            elif section_name == 'Withholding Tax':
+                self._process_withholding_tax_improved(rows, section_headers.get(section_name))
+            elif section_name == 'Fees':
+                self._process_fees_improved(rows, section_headers.get(section_name))
+            elif section_name == 'Open Positions':
+                self._process_open_positions_improved(rows, section_headers.get(section_name))
+            elif section_name == 'Interest':
+                self._process_interest_improved(rows, section_headers.get(section_name))
     
-    def _process_trades(self, trades_section: List):
-        """Process trade transactions"""
-        for row in trades_section:
-            if len(row) < 7:
-                continue
-            
-            # Skip headers
-            if row[0] == 'Trades' and row[1] == 'Header':
-                continue
-            
-            if row[0] == 'Trades' and row[1] == 'Data':
-                try:
-                    asset_type = row[2]  # Stocks, Forex, Warrants
-                    currency = row[3]
-                    symbol = row[4]
-                    date_str = row[5]
-                    quantity = self._safe_float(row[6])
-                    price = self._safe_float(row[7])
-                    proceeds = self._safe_float(row[8])
-                    commission = self._safe_float(row[9])
-                    
-                    if asset_type in ['Stocks', 'Forex', 'Warrants']:
-                        self.transactions.append({
-                            'type': asset_type,
-                            'currency': currency,
-                            'symbol': symbol,
-                            'date': date_str,
-                            'quantity': quantity,
-                            'price': price,
-                            'proceeds': proceeds,
-                            'commission': commission,
-                            'proceeds_chf': self._convert_to_chf(proceeds, currency),
-                            'commission_chf': self._convert_to_chf(commission, currency)
-                        })
-                except (ValueError, IndexError):
+    def _get_column_index(self, headers: Optional[List], column_name: str) -> int:
+        """Get column index from headers by name, return -1 if not found"""
+        if not headers:
+            return -1
+        
+        # Try to find exact match (case insensitive)
+        for i, header in enumerate(headers):
+            if isinstance(header, str) and header.strip().lower() == column_name.lower():
+                return i
+        
+        # Try partial match
+        for i, header in enumerate(headers):
+            if isinstance(header, str) and column_name.lower() in header.strip().lower():
+                return i
+        
+        return -1
+    
+    def _process_trades_improved(self, trades_rows: List, headers: Optional[List]):
+        """Process trade transactions with dynamic column mapping"""
+        if not trades_rows:
+            return
+        
+        # Create column mapping from headers if available
+        col_map = {}
+        if headers:
+            col_map = {
+                'asset_type': self._get_column_index(headers, 'Asset Category'),
+                'currency': self._get_column_index(headers, 'Currency'),
+                'symbol': self._get_column_index(headers, 'Symbol'),
+                'date': self._get_column_index(headers, 'Date/Time'),
+                'quantity': self._get_column_index(headers, 'Quantity'),
+                'price': self._get_column_index(headers, 'T. Price'),
+                'proceeds': self._get_column_index(headers, 'Proceeds'),
+                'comm_fee': self._get_column_index(headers, 'Comm/Fee'),
+                'basis': self._get_column_index(headers, 'Basis'),
+                'realized_pl': self._get_column_index(headers, 'Realized P/L'),
+            }
+            logging.debug(f"Trades column mapping: {col_map}")
+        else:
+            # Fallback to hardcoded positions (original behavior)
+            col_map = {
+                'asset_type': 2,
+                'currency': 3,
+                'symbol': 4,
+                'date': 5,
+                'quantity': 6,
+                'price': 7,
+                'proceeds': 8,
+                'comm_fee': 9,
+            }
+        
+        for row in trades_rows:
+            try:
+                # Skip if row is too short
+                if len(row) < max(col_map.values()) + 1:
                     continue
-    
-    def _process_dividends(self, dividends_section: List):
-        """Process dividend income"""
-        for row in dividends_section:
-            if len(row) < 4:
-                continue
-            
-            if row[0] == 'Dividends' and row[1] == 'Data':
-                try:
-                    currency = row[2]
-                    date_str = row[3]
-                    amount = self._safe_float(row[-1])
+                
+                asset_type = str(row[col_map['asset_type']]).strip() if col_map.get('asset_type', -1) >= 0 else ''
+                
+                if asset_type in ['Stocks', 'Forex', 'Warrants']:
+                    currency = str(row[col_map['currency']]).strip() if col_map.get('currency', -1) >= 0 else ''
+                    symbol = str(row[col_map['symbol']]).strip() if col_map.get('symbol', -1) >= 0 else ''
+                    date_str = str(row[col_map['date']]).strip() if col_map.get('date', -1) >= 0 else ''
+                    quantity = self._safe_float(row[col_map['quantity']]) if col_map.get('quantity', -1) >= 0 else 0.0
+                    price = self._safe_float(row[col_map['price']]) if col_map.get('price', -1) >= 0 else 0.0
+                    proceeds = self._safe_float(row[col_map['proceeds']]) if col_map.get('proceeds', -1) >= 0 else 0.0
+                    commission = abs(self._safe_float(row[col_map['comm_fee']])) if col_map.get('comm_fee', -1) >= 0 else 0.0
                     
+                    self.transactions.append({
+                        'type': asset_type,
+                        'currency': currency,
+                        'symbol': symbol,
+                        'date': date_str,
+                        'quantity': quantity,
+                        'price': price,
+                        'proceeds': proceeds,
+                        'commission': commission,
+                        'proceeds_chf': self._convert_to_chf(proceeds, currency),
+                        'commission_chf': self._convert_to_chf(commission, currency)
+                    })
+                    logging.debug(f"Added transaction: {symbol} ({asset_type}) on {date_str}")
+            except (ValueError, IndexError, KeyError) as e:
+                logging.warning(f"Failed to process trade row: {e}")
+                continue
+    
+    def _process_dividends_improved(self, dividend_rows: List, headers: Optional[List]):
+        """Process dividend income with dynamic column mapping"""
+        if not dividend_rows:
+            return
+        
+        # Create column mapping
+        col_map = {}
+        if headers:
+            col_map = {
+                'currency': self._get_column_index(headers, 'Currency'),
+                'date': self._get_column_index(headers, 'Date'),
+                'description': self._get_column_index(headers, 'Description'),
+                'amount': self._get_column_index(headers, 'Amount'),
+            }
+        else:
+            col_map = {
+                'currency': 2,
+                'date': 3,
+                'amount': -1,  # Last column
+            }
+        
+        for row in dividend_rows:
+            try:
+                currency = str(row[col_map['currency']]).strip() if col_map.get('currency', -1) >= 0 else ''
+                date_str = str(row[col_map['date']]).strip() if col_map.get('date', -1) >= 0 else ''
+                amount = self._safe_float(row[col_map['amount']]) if col_map.get('amount', -1) >= 0 else 0.0
+                
+                if amount != 0.0:
                     self.dividends.append({
                         'currency': currency,
                         'date': date_str,
                         'amount': amount,
                         'amount_chf': self._convert_to_chf(amount, currency)
                     })
-                except (ValueError, IndexError):
-                    continue
-    
-    def _process_withholding_tax(self, tax_section: List):
-        """Process withholding taxes"""
-        for row in tax_section:
-            if len(row) < 5:
+                    logging.debug(f"Added dividend: {amount} {currency} on {date_str}")
+            except (ValueError, IndexError, KeyError) as e:
+                logging.warning(f"Failed to process dividend row: {e}")
                 continue
-            
-            if row[0] == 'Withholding Tax' and row[1] == 'Data':
-                try:
-                    currency = row[2]
-                    date_str = row[3]
-                    amount = self._safe_float(row[-1])
-                    
+    
+    def _process_withholding_tax_improved(self, tax_rows: List, headers: Optional[List]):
+        """Process withholding taxes with dynamic column mapping"""
+        if not tax_rows:
+            return
+        
+        col_map = {}
+        if headers:
+            col_map = {
+                'currency': self._get_column_index(headers, 'Currency'),
+                'date': self._get_column_index(headers, 'Date'),
+                'description': self._get_column_index(headers, 'Description'),
+                'amount': self._get_column_index(headers, 'Amount'),
+            }
+        else:
+            col_map = {
+                'currency': 2,
+                'date': 3,
+                'amount': -1,
+            }
+        
+        for row in tax_rows:
+            try:
+                currency = str(row[col_map['currency']]).strip() if col_map.get('currency', -1) >= 0 else ''
+                date_str = str(row[col_map['date']]).strip() if col_map.get('date', -1) >= 0 else ''
+                amount = self._safe_float(row[col_map['amount']]) if col_map.get('amount', -1) >= 0 else 0.0
+                
+                if amount != 0.0:
                     self.taxes.append({
                         'currency': currency,
                         'date': date_str,
                         'amount': abs(amount),  # Make positive
                         'amount_chf': abs(self._convert_to_chf(amount, currency))
                     })
-                except (ValueError, IndexError):
-                    continue
-    
-    def _process_fees(self, fees_section: List):
-        """Process fees"""
-        for row in fees_section:
-            if len(row) < 4:
+                    logging.debug(f"Added withholding tax: {abs(amount)} {currency} on {date_str}")
+            except (ValueError, IndexError, KeyError) as e:
+                logging.warning(f"Failed to process tax row: {e}")
                 continue
-            
-            if row[0] == 'Fees' and row[1] == 'Data':
-                try:
-                    currency = row[2]
-                    date_str = row[3]
-                    amount = abs(self._safe_float(row[-1]))
-                    
+    
+    def _process_fees_improved(self, fee_rows: List, headers: Optional[List]):
+        """Process fees with dynamic column mapping"""
+        if not fee_rows:
+            return
+        
+        col_map = {}
+        if headers:
+            col_map = {
+                'currency': self._get_column_index(headers, 'Currency'),
+                'date': self._get_column_index(headers, 'Date'),
+                'description': self._get_column_index(headers, 'Description'),
+                'amount': self._get_column_index(headers, 'Amount'),
+            }
+        else:
+            col_map = {
+                'currency': 2,
+                'date': 3,
+                'amount': -1,
+            }
+        
+        for row in fee_rows:
+            try:
+                currency = str(row[col_map['currency']]).strip() if col_map.get('currency', -1) >= 0 else ''
+                date_str = str(row[col_map['date']]).strip() if col_map.get('date', -1) >= 0 else ''
+                amount = abs(self._safe_float(row[col_map['amount']])) if col_map.get('amount', -1) >= 0 else 0.0
+                
+                if amount != 0.0:
                     self.fees.append({
                         'currency': currency,
                         'date': date_str,
                         'amount': amount,
                         'amount_chf': self._convert_to_chf(amount, currency)
                     })
-                except (ValueError, IndexError):
-                    continue
-    
-    def _process_interest(self, interest_section: List):
-        """Process interest income"""
-        for row in interest_section:
-            if len(row) < 4:
+                    logging.debug(f"Added fee: {amount} {currency} on {date_str}")
+            except (ValueError, IndexError, KeyError) as e:
+                logging.warning(f"Failed to process fee row: {e}")
                 continue
-            
-            if row[0] == 'Interest' and row[1] == 'Data':
-                try:
-                    currency = row[2]
-                    date_str = row[3]
-                    amount = self._safe_float(row[-1])
-                    
+    
+    def _process_interest_improved(self, interest_rows: List, headers: Optional[List]):
+        """Process interest income with dynamic column mapping"""
+        if not interest_rows:
+            return
+        
+        col_map = {}
+        if headers:
+            col_map = {
+                'currency': self._get_column_index(headers, 'Currency'),
+                'date': self._get_column_index(headers, 'Date'),
+                'description': self._get_column_index(headers, 'Description'),
+                'amount': self._get_column_index(headers, 'Amount'),
+            }
+        else:
+            col_map = {
+                'currency': 2,
+                'date': 3,
+                'amount': -1,
+            }
+        
+        for row in interest_rows:
+            try:
+                currency = str(row[col_map['currency']]).strip() if col_map.get('currency', -1) >= 0 else ''
+                date_str = str(row[col_map['date']]).strip() if col_map.get('date', -1) >= 0 else ''
+                amount = self._safe_float(row[col_map['amount']]) if col_map.get('amount', -1) >= 0 else 0.0
+                
+                if amount != 0.0:
                     self.dividends.append({
                         'currency': currency,
                         'date': date_str,
@@ -201,30 +345,60 @@ class IBKRTaxProcessor:
                         'type': 'Interest',
                         'amount_chf': self._convert_to_chf(amount, currency)
                     })
-                except (ValueError, IndexError):
-                    continue
-    
-    def _process_open_positions(self, positions_section: List):
-        """Process open positions"""
-        for row in positions_section:
-            if len(row) < 10:
+                    logging.debug(f"Added interest: {amount} {currency} on {date_str}")
+            except (ValueError, IndexError, KeyError) as e:
+                logging.warning(f"Failed to process interest row: {e}")
                 continue
-            
-            if row[0] == 'Open Positions' and row[1] == 'Data' and row[2] == 'Summary':
-                try:
-                    symbol = row[4]
-                    quantity = self._safe_float(row[5])
-                    value = self._safe_float(row[-2])
-                    unrealized_pl = self._safe_float(row[-3])
+    
+    def _process_open_positions_improved(self, position_rows: List, headers: Optional[List]):
+        """Process open positions with dynamic column mapping"""
+        if not position_rows:
+            return
+        
+        col_map = {}
+        if headers:
+            col_map = {
+                'symbol': self._get_column_index(headers, 'Symbol'),
+                'quantity': self._get_column_index(headers, 'Quantity'),
+                'mult': self._get_column_index(headers, 'Mult'),
+                'cost_price': self._get_column_index(headers, 'Cost Price'),
+                'cost_basis': self._get_column_index(headers, 'Cost Basis'),
+                'close_price': self._get_column_index(headers, 'Close Price'),
+                'value': self._get_column_index(headers, 'Value'),
+                'unrealized_pl': self._get_column_index(headers, 'Unrealized P/L'),
+                'code': self._get_column_index(headers, 'Code'),
+            }
+        else:
+            # Fallback positions for original structure
+            col_map = {
+                'symbol': 4,
+                'quantity': 5,
+                'value': -2,
+                'unrealized_pl': -3,
+            }
+        
+        for row in position_rows:
+            try:
+                # Check if this is a summary row (often has "Summary" or specific marker)
+                row_type = str(row[2]).strip() if len(row) > 2 else ''
+                
+                if row_type in ['Summary', 'Data']:
+                    symbol = str(row[col_map['symbol']]).strip() if col_map.get('symbol', -1) >= 0 else ''
+                    quantity = self._safe_float(row[col_map['quantity']]) if col_map.get('quantity', -1) >= 0 else 0.0
+                    value = self._safe_float(row[col_map['value']]) if col_map.get('value', -1) >= 0 else 0.0
+                    unrealized_pl = self._safe_float(row[col_map['unrealized_pl']]) if col_map.get('unrealized_pl', -1) >= 0 else 0.0
                     
-                    self.open_positions.append({
-                        'symbol': symbol,
-                        'quantity': quantity,
-                        'value_chf': value,
-                        'unrealized_pl': unrealized_pl
-                    })
-                except (ValueError, IndexError):
-                    continue
+                    if symbol and quantity != 0.0:
+                        self.open_positions.append({
+                            'symbol': symbol,
+                            'quantity': quantity,
+                            'value_chf': value,
+                            'unrealized_pl': unrealized_pl
+                        })
+                        logging.debug(f"Added position: {symbol} qty={quantity}")
+            except (ValueError, IndexError, KeyError) as e:
+                logging.warning(f"Failed to process position row: {e}")
+                continue
     
     def _convert_to_chf(self, amount: float, currency: str) -> float:
         """Convert amount to CHF"""
@@ -235,12 +409,32 @@ class IBKRTaxProcessor:
         return amount * rate
     
     def _safe_float(self, value) -> float:
-        """Safely convert to float"""
-        if pd.isna(value) or value == '':
+        """Safely convert to float with improved error handling"""
+        if pd.isna(value) or value == '' or value is None:
             return 0.0
         try:
-            return float(str(value).replace(',', '.'))
-        except:
+            # Handle strings with thousands separators and decimal points
+            str_value = str(value).strip()
+            # Remove any whitespace
+            str_value = str_value.replace(' ', '')
+            # Handle both comma and dot as decimal separators
+            # Assume comma is decimal separator if no dot present
+            if ',' in str_value and '.' not in str_value:
+                str_value = str_value.replace(',', '.')
+            # Remove commas if both comma and dot present (comma is thousands separator)
+            elif ',' in str_value and '.' in str_value:
+                str_value = str_value.replace(',', '')
+            
+            result = float(str_value)
+            
+            # Check for NaN or Inf
+            if np.isnan(result) or np.isinf(result):
+                logging.warning(f"Converted value is NaN or Inf: {value}")
+                return 0.0
+            
+            return result
+        except (ValueError, TypeError) as e:
+            logging.warning(f"Failed to convert value to float: {value} - {e}")
             return 0.0
     
     def calculate_summary(self):
@@ -714,15 +908,26 @@ class IBKRTaxProcessor:
     
     def process(self):
         """Main processing pipeline"""
+        logging.info(f"🔄 Przetwarzanie raportu IBKR dla {self.canton}...")
+        logging.info(f"📂 Plik: {self.csv_file}")
         print(f"🔄 Przetwarzanie raportu IBKR dla {self.canton}...")
         print(f"📂 Plik: {self.csv_file}")
         
         self.parse_ibkr_statement()
+        logging.info(f"✅ Sparsowano {len(self.transactions)} transakcji")
+        logging.info(f"✅ Sparsowano {len(self.dividends)} dywidend/odsetek")
+        logging.info(f"✅ Sparsowano {len(self.taxes)} pozycji podatków")
+        logging.info(f"✅ Sparsowano {len(self.fees)} opłat")
+        logging.info(f"✅ Sparsowano {len(self.open_positions)} pozycji otwartych")
+        
         print(f"✅ Sparsowano {len(self.transactions)} transakcji")
         print(f"✅ Sparsowano {len(self.dividends)} dywidend/odsetek")
         print(f"✅ Sparsowano {len(self.taxes)} pozycji podatków")
+        print(f"✅ Sparsowano {len(self.fees)} opłat")
+        print(f"✅ Sparsowano {len(self.open_positions)} pozycji otwartych")
         
         self.calculate_summary()
+        logging.info(f"✅ Obliczono podsumowanie")
         print(f"✅ Obliczono podsumowanie")
         
         self.generate_excel_report()
@@ -734,6 +939,6 @@ class IBKRTaxProcessor:
 
 
 if __name__ == "__main__":
-    # Usage
-    processor = IBKRTaxProcessor('U11673931_20250101_20251203. csv', tax_year=2025)
+    # Usage example - update with your actual CSV filename
+    processor = IBKRTaxProcessor('U11673931_20250101_20251203.csv', tax_year=2025)
     processor.process()
