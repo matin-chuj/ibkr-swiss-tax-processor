@@ -42,7 +42,7 @@ class IBKRTaxProcessor:
         # Summary data
         self.summary = {}
         
-    def read_csv(self) -> pd. DataFrame:
+    def read_csv(self) -> pd.DataFrame:
         """Read and parse IBKR CSV"""
         df = pd.read_csv(self.csv_file, header=None)
         return df
@@ -66,7 +66,7 @@ class IBKRTaxProcessor:
                     section_data[current_section] = []
             
             if current_section:
-                section_data[current_section].append(row. tolist())
+                section_data[current_section].append(row.tolist())
         
         # Process each section
         if 'Trades' in section_data:
@@ -231,7 +231,7 @@ class IBKRTaxProcessor:
         if currency == 'CHF' or pd.isna(currency):
             return amount
         
-        rate = self.fx_rates.get(currency, 1. 0)
+        rate = self.fx_rates.get(currency, 1.0)
         return amount * rate
     
     def _safe_float(self, value) -> float:
@@ -246,11 +246,11 @@ class IBKRTaxProcessor:
     def calculate_summary(self):
         """Calculate tax summary"""
         # Capital gains
-        total_proceeds = sum([t['proceeds_chf'] for t in self. transactions if t['type'] == 'Stocks'])
-        total_commissions = sum([t['commission_chf'] for t in self. transactions])
+        total_proceeds = sum([t['proceeds_chf'] for t in self.transactions if t['type'] == 'Stocks'])
+        total_commissions = sum([t['commission_chf'] for t in self.transactions])
         
         # Dividend income
-        total_dividends = sum([d['amount_chf'] for d in self.dividends if d. get('type') != 'Interest'])
+        total_dividends = sum([d['amount_chf'] for d in self.dividends if d.get('type') != 'Interest'])
         
         # Interest income
         total_interest = sum([d['amount_chf'] for d in self.dividends if d.get('type') == 'Interest'])
@@ -355,16 +355,16 @@ class IBKRTaxProcessor:
             div_df = pd.DataFrame(divs)
             div_df = div_df[['date', 'currency', 'amount', 'amount_chf']]
             div_df.columns = ['Data', 'Waluta', 'Kwota', 'CHF']
-            div_df. to_excel(writer, sheet_name='DYWIDENDY', index=False)
+            div_df.to_excel(writer, sheet_name='DYWIDENDY', index=False)
     
     def _write_interest_sheet(self, writer):
         """Write interest sheet"""
-        interests = [d for d in self. dividends if d.get('type') == 'Interest']
+        interests = [d for d in self.dividends if d.get('type') == 'Interest']
         if interests:
             int_df = pd.DataFrame(interests)
             int_df = int_df[['date', 'currency', 'amount', 'amount_chf']]
             int_df.columns = ['Data', 'Waluta', 'Kwota', 'CHF']
-            int_df. to_excel(writer, sheet_name='ODSETKI', index=False)
+            int_df.to_excel(writer, sheet_name='ODSETKI', index=False)
     
     def _write_positions_sheet(self, writer):
         """Write open positions sheet"""
@@ -379,7 +379,7 @@ class IBKRTaxProcessor:
         all_fees = []
         
         # Add trading commissions
-        for t in self. transactions:
+        for t in self.transactions:
             if t['commission_chf'] > 0:
                 all_fees.append({
                     'date': t['date'],
@@ -389,8 +389,8 @@ class IBKRTaxProcessor:
                 })
         
         # Add other fees
-        for f in self. fees:
-            all_fees. append({
+        for f in self.fees:
+            all_fees.append({
                 'date': f['date'],
                 'type': 'Opłata',
                 'symbol': '',
@@ -401,12 +401,12 @@ class IBKRTaxProcessor:
             fees_df = pd.DataFrame(all_fees)
             fees_df = fees_df[['date', 'type', 'symbol', 'amount_chf']]
             fees_df.columns = ['Data', 'Typ', 'Symbol', 'CHF']
-            fees_df. to_excel(writer, sheet_name='KOSZTY', index=False)
+            fees_df.to_excel(writer, sheet_name='KOSZTY', index=False)
     
     def generate_html_report(self, output_file: str = 'tax_report_2025.html'):
         """Generate HTML preview report"""
         html = f"""
-<! DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
@@ -477,7 +477,7 @@ class IBKRTaxProcessor:
             margin-bottom: 10px;
         }}
         
-        .summary-card . value {{
+        .summary-card .value {{
             font-size: 1.8em;
             font-weight: bold;
             color: #333;
@@ -534,7 +534,7 @@ class IBKRTaxProcessor:
             margin-top: 40px;
         }}
         
-        . positive {{
+        .positive {{
             color: #28a745;
         }}
         
@@ -554,7 +554,7 @@ class IBKRTaxProcessor:
             <div class="summary-grid">
                 <div class="summary-card">
                     <h3>Dywidendy (brutto)</h3>
-                    <div class="value positive">{self.summary['total_dividends']:. 2f}</div>
+                    <div class="value positive">{self.summary['total_dividends']:.2f}</div>
                     <div class="unit">CHF</div>
                 </div>
                 
@@ -624,7 +624,7 @@ class IBKRTaxProcessor:
             <tr>
                 <td>{t['date']}</td>
                 <td>{t['symbol']}</td>
-                <td>{t['quantity']:. 2f}</td>
+                <td>{t['quantity']:.2f}</td>
                 <td>{t['price']:.2f}</td>
                 <td>{t['proceeds_chf']:.2f}</td>
                 <td>{t['commission_chf']:.2f}</td>
@@ -651,7 +651,7 @@ class IBKRTaxProcessor:
     
     def _generate_dividends_table(self) -> str:
         """Generate dividends HTML table"""
-        divs = [d for d in self.dividends if d. get('type') != 'Interest']
+        divs = [d for d in self.dividends if d.get('type') != 'Interest']
         if not divs:
             return "<p>Brak dywidend</p>"
         

@@ -13,7 +13,7 @@
 
 ## Wymagania
 
-- Python 3. 8+
+- Python 3.8+
 - pandas
 - openpyxl
 - requests
@@ -97,7 +97,7 @@ EUR/CHF: 0.93324
 USD/CHF: 0.79959
 JPY/CHF: 0.0051507
 NOK/CHF: 0.07952
-PLN/CHF: 0. 22084
+PLN/CHF: 0.22084
 SEK/CHF: 0.085358
 ```
 
@@ -128,7 +128,7 @@ Kursy mogą być aktualizowane w kodzie lub zaciągane z API SNB/ECB.
 
 ```
 ibkr-swiss-tax-processor/
-├── ibkr_processor. py        # Główna klasa procesora
+├── ibkr_processor.py        # Główna klasa procesora
 ├── requirements.txt         # Zależności Python
 ├── README.md               # Dokumentacja
 └── examples/
