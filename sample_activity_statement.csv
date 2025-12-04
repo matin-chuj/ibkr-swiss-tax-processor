@@ -1,0 +1,105 @@
+Statement,Header,Field Name,Field Value
+Statement,Data,Title,Activity Statement
+Statement,Data,Period,"January 1, 2025 - December 3, 2025"
+Statement,Data,When Generated,"December 3, 2025, 11:43:38 PM EST"
+Statement,Data,Account,U11673931
+Statement,Data,Name,Sample Account
+Statement,Data,Base Currency,CHF
+
+Trades,Header,DataDiscriminator,Asset Category,Currency,Symbol,Date/Time,Quantity,T. Price,Proceeds,Comm/Fee,Basis,Realized P/L,Code
+Trades,Data,Order,Stocks,USD,QQQM,2025-02-15;14:30:00,50,190.50,-9525.00,-1.25,
+Trades,Data,Order,Stocks,USD,QQQM,2025-03-20;10:15:00,-25,195.20,4880.00,-0.75,-4762.50,117.50,
+Trades,Data,Order,Stocks,USD,JEPI,2025-04-10;11:00:00,100,56.30,-5630.00,-1.50,
+Trades,Data,Order,Stocks,USD,VICI,2025-05-05;13:45:00,75,31.80,-2385.00,-0.90,
+Trades,Data,Order,Stocks,EUR,VUAA,2025-06-12;09:30:00,40,110.50,-4420.00,-2.10,
+Trades,Data,Order,Stocks,USD,MSFT,2025-07-08;14:00:00,15,420.75,-6311.25,-1.75,
+Trades,Data,Order,Stocks,USD,NVDA,2025-08-22;10:30:00,10,485.60,-4856.00,-1.50,
+Trades,Data,Order,Stocks,USD,META,2025-09-15;15:00:00,8,550.25,-4402.00,-1.25,
+Trades,Data,Order,Stocks,USD,TSLA,2025-10-10;11:30:00,20,245.80,-4916.00,-1.30,
+Trades,Data,Order,Stocks,USD,AMD,2025-11-05;13:00:00,30,165.40,-4962.00,-1.20,
+
+Dividends,Header,Currency,Date,Description,Amount
+Dividends,Data,USD,2025-01-15,QQQM (US) Cash Dividend USD 0.15 per Share (Ordinary Dividend),7.50
+Dividends,Data,USD,2025-02-20,JEPI (US) Cash Dividend USD 0.45 per Share (Ordinary Dividend),45.00
+Dividends,Data,USD,2025-03-18,VICI (US) Cash Dividend USD 0.39 per Share (Ordinary Dividend),29.25
+Dividends,Data,USD,2025-04-22,QQQM (US) Cash Dividend USD 0.16 per Share (Ordinary Dividend),8.00
+Dividends,Data,EUR,2025-05-15,VUAA (IE) Cash Dividend EUR 0.85 per Share (Ordinary Dividend),34.00
+Dividends,Data,USD,2025-06-10,JEPI (US) Cash Dividend USD 0.46 per Share (Ordinary Dividend),46.00
+Dividends,Data,USD,2025-07-25,MSFT (US) Cash Dividend USD 0.75 per Share (Ordinary Dividend),11.25
+Dividends,Data,USD,2025-08-12,VICI (US) Cash Dividend USD 0.40 per Share (Ordinary Dividend),30.00
+Dividends,Data,NOK,2025-09-05,DNB (NO) Cash Dividend NOK 12.50 per Share (Ordinary Dividend),491.36
+Dividends,Data,EUR,2025-10-18,VUAA (IE) Cash Dividend EUR 0.88 per Share (Ordinary Dividend),35.20
+Dividends,Data,PLN,2025-11-20,PKO BP (PL) Cash Dividend PLN 1.82 per Share (Ordinary Dividend),36.36
+Dividends,Data,USD,2025-12-02,JEPI (US) Cash Dividend USD 0.47 per Share (Ordinary Dividend),47.00
+
+Withholding Tax,Header,Currency,Date,Description,Amount
+Withholding Tax,Data,USD,2025-01-15,QQQM (US) Cash Dividend USD 0.15 per Share - US Tax,-1.13
+Withholding Tax,Data,USD,2025-02-20,JEPI (US) Cash Dividend USD 0.45 per Share - US Tax,-6.75
+Withholding Tax,Data,USD,2025-03-18,VICI (US) Cash Dividend USD 0.39 per Share - US Tax,-4.39
+Withholding Tax,Data,USD,2025-04-22,QQQM (US) Cash Dividend USD 0.16 per Share - US Tax,-1.20
+Withholding Tax,Data,EUR,2025-05-15,VUAA (IE) Cash Dividend EUR 0.85 per Share - DE Tax,-8.84
+Withholding Tax,Data,USD,2025-06-10,JEPI (US) Cash Dividend USD 0.46 per Share - US Tax,-6.90
+Withholding Tax,Data,USD,2025-07-25,MSFT (US) Cash Dividend USD 0.75 per Share - US Tax,-1.69
+Withholding Tax,Data,USD,2025-08-12,VICI (US) Cash Dividend USD 0.40 per Share - US Tax,-4.50
+Withholding Tax,Data,NOK,2025-09-05,DNB (NO) Cash Dividend NOK 12.50 per Share - NO Tax,-122.83
+Withholding Tax,Data,EUR,2025-10-18,VUAA (IE) Cash Dividend EUR 0.88 per Share - DE Tax,-9.15
+Withholding Tax,Data,USD,2025-12-02,JEPI (US) Cash Dividend USD 0.47 per Share - US Tax,-7.05
+
+Interest,Header,Currency,Date,Description,Amount
+Interest,Data,CHF,2025-01-31,CHF Credit Interest for Jan-2025,0.35
+Interest,Data,USD,2025-02-28,USD Credit Interest for Feb-2025,1.87
+Interest,Data,CHF,2025-03-31,CHF Credit Interest for Mar-2025,0.42
+Interest,Data,USD,2025-04-30,USD Credit Interest for Apr-2025,2.15
+Interest,Data,CHF,2025-05-31,CHF Credit Interest for May-2025,0.38
+Interest,Data,USD,2025-06-30,USD Credit Interest for Jun-2025,2.34
+Interest,Data,SEK,2025-07-31,SEK Credit Interest for Jul-2025,0.54
+Interest,Data,CHF,2025-08-31,CHF Credit Interest for Aug-2025,0.45
+Interest,Data,USD,2025-09-30,USD Credit Interest for Sep-2025,2.58
+Interest,Data,CHF,2025-10-31,CHF Credit Interest for Oct-2025,0.48
+Interest,Data,USD,2025-11-30,USD Credit Interest for Nov-2025,2.85
+
+Fees,Header,Subtitle,Currency,Date,Description,Amount
+Fees,Data,Other Fees,CHF,2025-01-15,Market Data Subscription,-3.50
+Fees,Data,Other Fees,CHF,2025-02-15,Market Data Subscription,-3.50
+Fees,Data,Other Fees,CHF,2025-03-15,Market Data Subscription,-3.50
+Fees,Data,Other Fees,CHF,2025-04-15,Market Data Subscription,-3.50
+Fees,Data,Other Fees,CHF,2025-05-15,Market Data Subscription,-3.50
+Fees,Data,Other Fees,CHF,2025-06-15,Market Data Subscription,-3.50
+Fees,Data,Other Fees,CHF,2025-07-15,Market Data Subscription,-3.50
+Fees,Data,Other Fees,CHF,2025-08-15,Market Data Subscription,-3.50
+Fees,Data,Other Fees,CHF,2025-09-15,Market Data Subscription,-3.50
+Fees,Data,Other Fees,CHF,2025-10-15,Market Data Subscription,-3.50
+Fees,Data,Other Fees,CHF,2025-11-15,Market Data Subscription,-3.50
+Fees,Data,Other Fees,CHF,2025-12-03,Market Data Subscription,-1.27
+
+Open Positions,Header,DataDiscriminator,Asset Category,Currency,Symbol,Quantity,Mult,Cost Price,Cost Basis,Close Price,Value,Unrealized P/L,Code
+Open Positions,Data,Summary,Stocks,USD,QQQM,25,1,191.50,4787.50,205.30,5132.50,345.00,
+Open Positions,Data,Summary,Stocks,USD,JEPI,100,1,56.30,5630.00,58.75,5875.00,245.00,
+Open Positions,Data,Summary,Stocks,USD,VICI,75,1,31.80,2385.00,33.50,2512.50,127.50,
+Open Positions,Data,Summary,Stocks,EUR,VUAA,40,1,110.50,4420.00,118.25,4730.00,310.00,
+Open Positions,Data,Summary,Stocks,USD,MSFT,15,1,420.75,6311.25,445.80,6687.00,375.75,
+Open Positions,Data,Summary,Stocks,USD,NVDA,10,1,485.60,4856.00,520.40,5204.00,348.00,
+Open Positions,Data,Summary,Stocks,USD,META,8,1,550.25,4402.00,575.60,4604.80,202.80,
+Open Positions,Data,Summary,Stocks,USD,TSLA,20,1,245.80,4916.00,265.30,5306.00,390.00,
+Open Positions,Data,Summary,Stocks,USD,AMD,30,1,165.40,4962.00,178.25,5347.50,385.50,
+Open Positions,Data,Summary,Stocks,USD,O,50,1,62.50,3125.00,64.80,3240.00,115.00,
+
+Securities Lending,Header,Currency,Date,Description,Amount
+Securities Lending,Data,USD,2025-05-31,Stock Yield - NVDA,3.45
+Securities Lending,Data,USD,2025-08-15,Stock Yield - TSLA,2.58
+Securities Lending,Data,USD,2025-11-22,Stock Yield - AMD,1.01
+
+Forex P/L,Header,DataDiscriminator,Asset Category,Currency,Symbol,Date/Time,Quantity,Proceeds,Cost Basis,Realized P/L,Code
+Forex P/L,Data,Trade,Forex,CHF,EUR.CHF,2025-03-15;10:00:00,1000,933.24,-950.00,-16.76,
+Forex P/L,Data,Trade,Forex,CHF,USD.CHF,2025-06-20;14:30:00,5000,3997.95,-4100.00,-102.05,
+Forex P/L,Data,Trade,Forex,CHF,NOK.CHF,2025-09-10;11:15:00,2000,159.04,-170.00,-10.96,
+
+Cash Report,Header,Currency Summary
+Cash Report,Data,Ending Cash,Total
+Cash Report,Data,Ending Cash,CHF,9354.43
+Cash Report,Data,Ending Cash,USD,15112.58
+Cash Report,Data,Ending Cash,EUR,1059.12
+Cash Report,Data,Ending Cash,JPY,5240.00
+Cash Report,Data,Ending Cash,NOK,856.45
+Cash Report,Data,Ending Cash,PLN,124.78
+Cash Report,Data,Ending Cash,SEK,98.56

@@ -1,157 +1,189 @@
 # IBKR Swiss Tax Processor - Basel-Landschaft
 
-🇨🇭 Narzędzie do przetwarzania raportów IBKR Activity Statement i generowania raportów podatkowych dla kantonu Basel-Landschaft. 
+🇨🇭 **Complete Tax Filing Solution for Basel-Landschaft Canton**
 
-## Funcje
+Automated processing of IBKR Activity Statements with comprehensive tax report generation for Swiss tax filing.
 
-✅ **Parsowanie CSV z IBKR** - Automatyczne czytanie i strukturyzowanie danych
-✅ **Konwersja walut** - Obsługa EUR, USD, JPY, NOK, PLN, SEK → CHF
-✅ **Kategoryzacja podatkowa** - Zgodnie z wymogami Basel-Landschaft
-✅ **Excel Report** - Siedem arkuszy ze szczegółami
-✅ **HTML Preview** - Interaktywny podgląd raportów
-✅ **Polskie tłumaczenie** - Wszystkie nazwy w języku polskim
+## ✨ Features
 
-## Wymagania
+✅ **Complete Tax Filing System**
+- Parse IBKR Activity Statement CSV files
+- Calculate taxes according to Basel-Landschaft rules
+- Generate professional tax reports (Excel, PDF, Text)
+- Automatic currency conversion to CHF
+- Foreign tax credit calculation
 
-- Python 3. 8+
-- pandas
-- openpyxl
-- requests
+✅ **Three Output Formats**
+1. **Excel** (`Wertschriftenverzeichnis_BL_2025.xlsx`) - 7 detailed sheets
+2. **PDF** (`Tax_Report_BL_2025.pdf`) - Professional A4 format
+3. **Text** (`detailed_breakdown.txt`) - Complete transaction listing
 
-## Instalacja
+✅ **Basel-Landschaft Compliance**
+- Capital gains: Tax-free for private investors ✓
+- Investment income: Fully taxable (10.55% rate)
+- Wealth tax: 0.08% on assets > CHF 50,000
+- Foreign tax credit support
+
+## 🚀 Quick Start
+
+### Installation
 
 ```bash
+# Clone the repository
+git clone https://github.com/matin-chuj/ibkr-swiss-tax-processor.git
+cd ibkr-swiss-tax-processor
+
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-## Użycie
+### Basic Usage
 
-### Podstawowe użycie
+```bash
+# Process your IBKR Activity Statement
+python3 complete_tax_filing.py YOUR_IBKR_STATEMENT.csv
 
-```python
-from ibkr_processor import IBKRTaxProcessor
-
-# Inicjalizacja
-processor = IBKRTaxProcessor(
-    'U11673931_20250101_20251203.csv',
-    tax_year=2025
-)
-
-# Przetworzenie i generowanie raportów
-processor.process()
+# With custom output directory
+python3 complete_tax_filing.py YOUR_IBKR_STATEMENT.csv --year 2025 --output ./tax_reports
 ```
 
-### Output
+### Test with Sample Data
 
-Proces generuje dwa pliki:
-
-1. **tax_report_2025.xlsx** - Plik Excel z siedmioma arkuszami:
-   - 📊 PODSUMOWANIE - Przegląd roczny
-   - 📈 TRANSAKCJE_SZCZEGÓŁOWE - Wszystkie transakcje akcji
-   - 💱 FOREX - Konwersje walut i zyski
-   - 💰 DYWIDENDY - Dochód z dywidend
-   - 📍 ODSETKI - Odsetki od depozytów
-   - 🎯 POZYCJE_OTWARTE - Aktualne holdingi
-   - 💳 KOSZTY - Prowizje i opłaty
-
-2. **tax_report_2025.html** - Interaktywny podgląd w przeglądarce
-
-## Struktura danych
-
-### Summary (Podsumowanie)
-```
-Dywidendy (brutto)      → CHF
-Odsetki                 → CHF
-Zyski z Forex           → CHF
-Koszty (prowizje)       → CHF
-Podatki u źródła        → CHF
-Pozycje otwarte         → CHF
+```bash
+# Run with included sample data
+python3 complete_tax_filing.py sample_activity_statement.csv --output ./output
 ```
 
-### Transakcje
+## 📊 Generated Reports
+
+### Excel Report (7 Sheets)
+1. **Vermögensaufstellung** - Assets (stocks + cash)
+2. **Einkünfte** - Income (dividends, interest, lending)
+3. **Kapitalgewinne** - Capital gains (realized)
+4. **Niezrealizowane** - Unrealized gains
+5. **Koszty** - Expenses (commissions, fees)
+6. **Forex** - Foreign exchange P/L
+7. **Podsumowanie** - Tax summary
+
+### PDF Report
+- Professional A4 format
+- Tax summary tables
+- Assets and income breakdown
+- Legal disclaimers
+
+### Detailed Breakdown
+- Transaction-by-transaction listing
+- Step-by-step calculations
+- Verification checksums
+
+## 🧮 Tax Calculation
+
 ```
-Data | Symbol | Typ | Ilość | Cena | Wartość CHF | Komisja CHF
+Taxable Income = Dividends + Interest + Lending - Expenses
+Income Tax = Taxable Income × 10.55%
+
+Taxable Wealth = Total Assets - CHF 50,000
+Wealth Tax = Taxable Wealth × 0.08%
+
+Total Tax = (Income Tax + Wealth Tax) - Foreign Tax Credit
 ```
 
-### Dywidendy
-```
-Data | Waluta | Kwota | Kwota CHF | Podatek u źródła
-```
-
-## Basel-Landschaft - Wymogi podatkowe
-
-Canton Basel-Landschaft wymaga:
-
-✓ Separacji zysków krótko- i długoterminowych
-✓ Raportowania dochodów z lokat (dywidendy, odsetki)
-✓ Raportowania podatków u źródła per kraj
-✓ Deklaracji kosztów handlowych (prowizje, opłaty)
-✓ Konwersji wszystkich walut na CHF
-
-## Kursy walut
-
-Domyślnie używane kursy z raportu IBKR (stan: 3 grudnia 2025):
-
-```
-EUR/CHF: 0.93324
-USD/CHF: 0.79959
-JPY/CHF: 0.0051507
-NOK/CHF: 0.07952
-PLN/CHF: 0. 22084
-SEK/CHF: 0.085358
-```
-
-Kursy mogą być aktualizowane w kodzie lub zaciągane z API SNB/ECB.
-
-## Obsługiwane waluty
-
-- EUR (Euro)
-- USD (Dolar ameryski)
-- JPY (Jen japoński)
-- NOK (Korona norweska)
-- PLN (Złoty polski)
-- SEK (Korona szwedzka)
-- CHF (Frank szwajcarski - waluta bazowa)
-
-## Rozwiązywanie problemów
-
-### Problem: "Module not found: pandas"
-**Rozwiązanie:** `pip install -r requirements.txt`
-
-### Problem: Błędy przy parsowaniu CSV
-**Rozwiązanie:** Upewnij się, że plik CSV pochodzi bezpośrednio z IBKR, bez edycji
-
-### Problem: Kursy walut niezgodne
-**Rozwiązanie:** Zmodyfikuj słownik `self.fx_rates` w klasie `IBKRTaxProcessor`
-
-## Struktura projektu
+## 📁 Project Structure
 
 ```
 ibkr-swiss-tax-processor/
-├── ibkr_processor. py        # Główna klasa procesora
-├── requirements.txt         # Zależności Python
-├── README.md               # Dokumentacja
-└── examples/
-    └── sample_report/
-        ├── tax_report_2025.xlsx
-        └── tax_report_2025.html
+├── complete_tax_filing.py       # Main script
+├── parser.py                    # CSV parser
+├── tax_calculator_bl.py         # Tax calculator
+├── report_generator_bl.py       # Report generator  
+├── requirements.txt             # Dependencies
+├── sample_activity_statement.csv # Test data
+├── USAGE_GUIDE.md              # Detailed guide
+└── README.md                    # This file
 ```
 
-## Notatki prawne
+## 📖 Documentation
 
-⚠️ Ten skrypt jest narzędziem pomocniczym i nie stanowi porady podatkowej. 
-Zawsze weryfikuj wygenerowany raport z doradcą podatkowym przed złożeniem deklaracji w Basel-Landschaft.
+- **[USAGE_GUIDE.md](USAGE_GUIDE.md)** - Complete usage guide
+- **[requirements.txt](requirements.txt)** - Python dependencies
 
-## Licencja
+## 🎯 Supported Features
 
-MIT License - Użycie na własne ryzyko
+### IBKR Data Sections
+- ✅ Trades (stocks, options)
+- ✅ Dividends (all currencies)
+- ✅ Withholding taxes
+- ✅ Interest income
+- ✅ Fees and commissions
+- ✅ Open positions
+- ✅ Cash balances
+- ✅ Forex transactions
+- ✅ Securities lending
 
-## Kontakt & Wsparcie
+### Currencies
+- CHF (Swiss Franc)
+- EUR (Euro)
+- USD (US Dollar)
+- JPY (Japanese Yen)
+- NOK (Norwegian Krone)
+- PLN (Polish Złoty)
+- SEK (Swedish Krona)
 
-Pytania?  Utwórz issue na GitHub lub skontaktuj się z autorem. 
+## ⚠️ Important Notes
+
+### Tax-Free in Basel-Landschaft
+✅ Capital gains (realized and unrealized)
+✅ Forex gains/losses
+
+### Fully Taxable
+💰 Dividends
+💰 Interest
+💰 Securities lending income
+
+### Deductible
+✅ Trading commissions
+✅ Market data fees
+✅ Account fees
+
+## 🔧 Requirements
+
+- Python 3.8+
+- pandas >= 2.0.0
+- openpyxl >= 3.1.0
+- reportlab >= 4.0.0
+- numpy >= 1.24.0
+
+## 🆘 Support & Troubleshooting
+
+1. **Check the log file**: `tax_filing.log`
+2. **Review documentation**: [USAGE_GUIDE.md](USAGE_GUIDE.md)
+3. **Test with sample data**: `sample_activity_statement.csv`
+4. **Consult tax advisor**: Always verify with professional
+
+## ⚖️ Legal Disclaimer
+
+⚠️ **This tool is for informational purposes only and does NOT constitute tax advice.**
+
+- Always verify calculations with a certified tax advisor
+- Basel-Landschaft tax rules may change
+- Individual circumstances may require different treatment
+- Use at your own risk
+
+## 📞 Contact & Issues
+
+- Create an issue on GitHub
+- Review [USAGE_GUIDE.md](USAGE_GUIDE.md) for detailed help
+
+## 📄 License
+
+MIT License - See LICENSE file for details
+
+## 🎖️ Version
+
+**Version 2.0** - Complete Tax Filing System (December 2025)
 
 ---
 
-**Wersja:** 1.0.0  
-**Ostatnia aktualizacja:** Grudzień 2025  
-**Kompatybilność:** Python 3.8+
+**Made with ❤️ for Swiss Tax Filers in Basel-Landschaft**
+
+*For tax year 2025 and beyond*
