@@ -33,7 +33,21 @@ class IBKRActivityParser:
         """Main parsing method - reads CSV and extracts all sections"""
         try:
             logger.info(f"📂 Reading CSV file: {self.csv_file}")
-            self.raw_df = pd.read_csv(self.csv_file, header=None)
+            # Read all lines manually since pandas can't handle varying column counts well
+            with open(self.csv_file, 'r', encoding='utf-8') as f:
+                lines = f.readlines()
+            
+            # Parse into list of lists
+            import csv
+            reader = csv.reader(lines)
+            rows = list(reader)
+            
+            # Convert to DataFrame with maximum columns
+            max_cols = max(len(row) for row in rows)
+            # Pad rows to have same number of columns
+            padded_rows = [row + [''] * (max_cols - len(row)) for row in rows]
+            self.raw_df = pd.DataFrame(padded_rows)
+            
             logger.info(f"✅ Loaded {len(self.raw_df)} rows")
             
             # Parse each section
@@ -79,10 +93,10 @@ class IBKRActivityParser:
             
         logger.info("📊 Parsing Trades section...")
         
-        # Find header row (usually has "Header" in first column)
+        # Find header row (has "Header" in second column)
         header_idx = None
         for idx in range(section_start, min(section_start + 10, len(self.raw_df))):
-            if pd.notna(self.raw_df.iloc[idx, 0]) and 'Header' in str(self.raw_df.iloc[idx, 0]):
+            if pd.notna(self.raw_df.iloc[idx, 1]) and str(self.raw_df.iloc[idx, 1]).strip() == 'Header':
                 header_idx = idx
                 break
         
@@ -90,34 +104,37 @@ class IBKRActivityParser:
             logger.warning("⚠️ Trades header not found")
             return
         
-        # Parse data rows
+        # Parse data rows (rows with "Data" in second column)
         for idx in range(header_idx + 1, len(self.raw_df)):
             row = self.raw_df.iloc[idx]
             first_col = str(row[0]).strip() if pd.notna(row[0]) else ""
+            second_col = str(row[1]).strip() if pd.notna(row[1]) else ""
             
             # Stop at next section
             if first_col in ['Dividends', 'Withholding Tax', 'Fees', 'Open Positions', 
                             'Cash Report', 'Interest', 'Securities Lending', 'Forex P/L']:
                 break
             
-            # Skip non-data rows
-            if pd.isna(row[0]) or first_col in ['Header', 'Total', 'SubTotal']:
+            # Only process data rows
+            if second_col != 'Data':
                 continue
             
             try:
                 trade = {
                     'header': self._safe_str(row[0]),
-                    'asset_category': self._safe_str(row[1]),
-                    'currency': self._safe_str(row[2]),
-                    'symbol': self._safe_str(row[3]),
-                    'date_time': self._safe_str(row[4]),
-                    'quantity': self._safe_float(row[5]),
-                    'price': self._safe_float(row[6]),
-                    'proceeds': self._safe_float(row[7]),
-                    'commission': self._safe_float(row[8]),
-                    'basis': self._safe_float(row[9]) if len(row) > 9 else 0.0,
-                    'realized_pl': self._safe_float(row[10]) if len(row) > 10 else 0.0,
-                    'code': self._safe_str(row[11]) if len(row) > 11 else '',
+                    'data_type': self._safe_str(row[1]),
+                    'discriminator': self._safe_str(row[2]),
+                    'asset_category': self._safe_str(row[3]),
+                    'currency': self._safe_str(row[4]),
+                    'symbol': self._safe_str(row[5]),
+                    'date_time': self._safe_str(row[6]),
+                    'quantity': self._safe_float(row[7]),
+                    'price': self._safe_float(row[8]),
+                    'proceeds': self._safe_float(row[9]),
+                    'commission': abs(self._safe_float(row[10])),
+                    'basis': self._safe_float(row[11]) if len(row) > 11 else 0.0,
+                    'realized_pl': self._safe_float(row[12]) if len(row) > 12 else 0.0,
+                    'code': self._safe_str(row[13]) if len(row) > 13 else '',
                 }
                 
                 if trade['symbol'] and trade['quantity'] != 0:
@@ -125,6 +142,8 @@ class IBKRActivityParser:
                     
             except Exception as e:
                 logger.debug(f"Skipping trade row {idx}: {e}")
+        
+        logger.info(f"✅ Processed {len(self.trades)} trades")
     
     def _parse_dividends(self):
         """Parse Dividends section"""
@@ -137,30 +156,32 @@ class IBKRActivityParser:
         
         header_idx = None
         for idx in range(section_start, min(section_start + 10, len(self.raw_df))):
-            if pd.notna(self.raw_df.iloc[idx, 0]) and 'Header' in str(self.raw_df.iloc[idx, 0]):
+            if pd.notna(self.raw_df.iloc[idx, 1]) and str(self.raw_df.iloc[idx, 1]).strip() == 'Header':
                 header_idx = idx
                 break
         
         if header_idx is None:
+            logger.warning("⚠️ Dividends header not found")
             return
         
         for idx in range(header_idx + 1, len(self.raw_df)):
             row = self.raw_df.iloc[idx]
             first_col = str(row[0]).strip() if pd.notna(row[0]) else ""
+            second_col = str(row[1]).strip() if pd.notna(row[1]) else ""
             
             if first_col in ['Trades', 'Withholding Tax', 'Fees', 'Open Positions', 
                             'Cash Report', 'Interest']:
                 break
             
-            if pd.isna(row[0]) or first_col in ['Header', 'Total', 'SubTotal']:
+            if second_col != 'Data':
                 continue
             
             try:
                 dividend = {
-                    'currency': self._safe_str(row[1]),
-                    'date': self._safe_str(row[2]),
-                    'description': self._safe_str(row[3]),
-                    'amount': self._safe_float(row[4]) if len(row) > 4 else self._safe_float(row[-1]),
+                    'currency': self._safe_str(row[2]),
+                    'date': self._safe_str(row[3]),
+                    'description': self._safe_str(row[4]),
+                    'amount': self._safe_float(row[5]),
                 }
                 
                 if dividend['amount'] != 0:
@@ -168,6 +189,8 @@ class IBKRActivityParser:
                     
             except Exception as e:
                 logger.debug(f"Skipping dividend row {idx}: {e}")
+        
+        logger.info(f"✅ Processed {len(self.dividends)} dividends")
     
     def _parse_withholding_taxes(self):
         """Parse Withholding Tax section"""
@@ -180,30 +203,32 @@ class IBKRActivityParser:
         
         header_idx = None
         for idx in range(section_start, min(section_start + 10, len(self.raw_df))):
-            if pd.notna(self.raw_df.iloc[idx, 0]) and 'Header' in str(self.raw_df.iloc[idx, 0]):
+            if pd.notna(self.raw_df.iloc[idx, 1]) and str(self.raw_df.iloc[idx, 1]).strip() == 'Header':
                 header_idx = idx
                 break
         
         if header_idx is None:
+            logger.warning("⚠️ Withholding Tax header not found")
             return
         
         for idx in range(header_idx + 1, len(self.raw_df)):
             row = self.raw_df.iloc[idx]
             first_col = str(row[0]).strip() if pd.notna(row[0]) else ""
+            second_col = str(row[1]).strip() if pd.notna(row[1]) else ""
             
             if first_col in ['Trades', 'Dividends', 'Fees', 'Open Positions', 
                             'Cash Report', 'Interest']:
                 break
             
-            if pd.isna(row[0]) or first_col in ['Header', 'Total', 'SubTotal']:
+            if second_col != 'Data':
                 continue
             
             try:
                 tax = {
-                    'currency': self._safe_str(row[1]),
-                    'date': self._safe_str(row[2]),
-                    'description': self._safe_str(row[3]),
-                    'amount': abs(self._safe_float(row[4])) if len(row) > 4 else abs(self._safe_float(row[-1])),
+                    'currency': self._safe_str(row[2]),
+                    'date': self._safe_str(row[3]),
+                    'description': self._safe_str(row[4]),
+                    'amount': abs(self._safe_float(row[5])),
                 }
                 
                 if tax['amount'] != 0:
@@ -211,6 +236,8 @@ class IBKRActivityParser:
                     
             except Exception as e:
                 logger.debug(f"Skipping tax row {idx}: {e}")
+        
+        logger.info(f"✅ Processed {len(self.withholding_taxes)} withholding taxes")
     
     def _parse_interest(self):
         """Parse Interest section"""
@@ -223,30 +250,32 @@ class IBKRActivityParser:
         
         header_idx = None
         for idx in range(section_start, min(section_start + 10, len(self.raw_df))):
-            if pd.notna(self.raw_df.iloc[idx, 0]) and 'Header' in str(self.raw_df.iloc[idx, 0]):
+            if pd.notna(self.raw_df.iloc[idx, 1]) and str(self.raw_df.iloc[idx, 1]).strip() == 'Header':
                 header_idx = idx
                 break
         
         if header_idx is None:
+            logger.warning("⚠️ Interest header not found")
             return
         
         for idx in range(header_idx + 1, len(self.raw_df)):
             row = self.raw_df.iloc[idx]
             first_col = str(row[0]).strip() if pd.notna(row[0]) else ""
+            second_col = str(row[1]).strip() if pd.notna(row[1]) else ""
             
             if first_col in ['Trades', 'Dividends', 'Withholding Tax', 'Fees', 
                             'Open Positions', 'Cash Report']:
                 break
             
-            if pd.isna(row[0]) or first_col in ['Header', 'Total', 'SubTotal']:
+            if second_col != 'Data':
                 continue
             
             try:
                 interest = {
-                    'currency': self._safe_str(row[1]),
-                    'date': self._safe_str(row[2]),
-                    'description': self._safe_str(row[3]) if len(row) > 3 else '',
-                    'amount': self._safe_float(row[-1]),
+                    'currency': self._safe_str(row[2]),
+                    'date': self._safe_str(row[3]),
+                    'description': self._safe_str(row[4]),
+                    'amount': self._safe_float(row[5]),
                 }
                 
                 if interest['amount'] != 0:
@@ -254,6 +283,8 @@ class IBKRActivityParser:
                     
             except Exception as e:
                 logger.debug(f"Skipping interest row {idx}: {e}")
+        
+        logger.info(f"✅ Processed {len(self.interest)} interest entries")
     
     def _parse_fees(self):
         """Parse Fees section"""
@@ -266,31 +297,33 @@ class IBKRActivityParser:
         
         header_idx = None
         for idx in range(section_start, min(section_start + 10, len(self.raw_df))):
-            if pd.notna(self.raw_df.iloc[idx, 0]) and 'Header' in str(self.raw_df.iloc[idx, 0]):
+            if pd.notna(self.raw_df.iloc[idx, 1]) and str(self.raw_df.iloc[idx, 1]).strip() == 'Header':
                 header_idx = idx
                 break
         
         if header_idx is None:
+            logger.warning("⚠️ Fees header not found")
             return
         
         for idx in range(header_idx + 1, len(self.raw_df)):
             row = self.raw_df.iloc[idx]
             first_col = str(row[0]).strip() if pd.notna(row[0]) else ""
+            second_col = str(row[1]).strip() if pd.notna(row[1]) else ""
             
             if first_col in ['Trades', 'Dividends', 'Withholding Tax', 'Open Positions', 
                             'Cash Report', 'Interest']:
                 break
             
-            if pd.isna(row[0]) or first_col in ['Header', 'Total', 'SubTotal']:
+            if second_col != 'Data':
                 continue
             
             try:
                 fee = {
-                    'subtitle': self._safe_str(row[1]),
-                    'currency': self._safe_str(row[2]),
-                    'date': self._safe_str(row[3]),
-                    'description': self._safe_str(row[4]) if len(row) > 4 else '',
-                    'amount': abs(self._safe_float(row[-1])),
+                    'subtitle': self._safe_str(row[2]),
+                    'currency': self._safe_str(row[3]),
+                    'date': self._safe_str(row[4]),
+                    'description': self._safe_str(row[5]),
+                    'amount': abs(self._safe_float(row[6])),
                 }
                 
                 if fee['amount'] != 0:
@@ -298,6 +331,8 @@ class IBKRActivityParser:
                     
             except Exception as e:
                 logger.debug(f"Skipping fee row {idx}: {e}")
+        
+        logger.info(f"✅ Processed {len(self.fees)} fees")
     
     def _parse_open_positions(self):
         """Parse Open Positions section"""
@@ -310,37 +345,40 @@ class IBKRActivityParser:
         
         header_idx = None
         for idx in range(section_start, min(section_start + 10, len(self.raw_df))):
-            if pd.notna(self.raw_df.iloc[idx, 0]) and 'Header' in str(self.raw_df.iloc[idx, 0]):
+            if pd.notna(self.raw_df.iloc[idx, 1]) and str(self.raw_df.iloc[idx, 1]).strip() == 'Header':
                 header_idx = idx
                 break
         
         if header_idx is None:
+            logger.warning("⚠️ Open Positions header not found")
             return
         
         for idx in range(header_idx + 1, len(self.raw_df)):
             row = self.raw_df.iloc[idx]
             first_col = str(row[0]).strip() if pd.notna(row[0]) else ""
+            second_col = str(row[1]).strip() if pd.notna(row[1]) else ""
             
             if first_col in ['Trades', 'Dividends', 'Withholding Tax', 'Fees', 
                             'Cash Report', 'Interest']:
                 break
             
-            if pd.isna(row[0]) or first_col in ['Header', 'Total', 'SubTotal']:
+            if second_col != 'Data':
                 continue
             
             try:
                 position = {
-                    'asset_category': self._safe_str(row[1]),
-                    'currency': self._safe_str(row[2]),
-                    'symbol': self._safe_str(row[3]),
-                    'quantity': self._safe_float(row[4]),
-                    'mult': self._safe_float(row[5]) if len(row) > 5 else 1.0,
-                    'cost_price': self._safe_float(row[6]) if len(row) > 6 else 0.0,
-                    'cost_basis': self._safe_float(row[7]) if len(row) > 7 else 0.0,
-                    'close_price': self._safe_float(row[8]) if len(row) > 8 else 0.0,
-                    'value': self._safe_float(row[9]) if len(row) > 9 else 0.0,
-                    'unrealized_pl': self._safe_float(row[10]) if len(row) > 10 else 0.0,
-                    'code': self._safe_str(row[11]) if len(row) > 11 else '',
+                    'discriminator': self._safe_str(row[2]),
+                    'asset_category': self._safe_str(row[3]),
+                    'currency': self._safe_str(row[4]),
+                    'symbol': self._safe_str(row[5]),
+                    'quantity': self._safe_float(row[6]),
+                    'mult': self._safe_float(row[7]),
+                    'cost_price': self._safe_float(row[8]),
+                    'cost_basis': self._safe_float(row[9]),
+                    'close_price': self._safe_float(row[10]),
+                    'value': self._safe_float(row[11]),
+                    'unrealized_pl': self._safe_float(row[12]),
+                    'code': self._safe_str(row[13]) if len(row) > 13 else '',
                 }
                 
                 if position['symbol'] and position['quantity'] != 0:
@@ -348,6 +386,8 @@ class IBKRActivityParser:
                     
             except Exception as e:
                 logger.debug(f"Skipping position row {idx}: {e}")
+        
+        logger.info(f"✅ Processed {len(self.open_positions)} open positions")
     
     def _parse_cash_report(self):
         """Parse Cash Report section"""
@@ -358,29 +398,32 @@ class IBKRActivityParser:
             
         logger.info("💵 Parsing Cash Report section...")
         
-        # Look for "Ending Cash" subsection
+        # Look for "Ending Cash" rows
         for idx in range(section_start, min(section_start + 50, len(self.raw_df))):
             row = self.raw_df.iloc[idx]
             first_col = str(row[0]).strip() if pd.notna(row[0]) else ""
             second_col = str(row[1]).strip() if pd.notna(row[1]) else ""
+            third_col = str(row[2]).strip() if pd.notna(row[2]) else ""
             
             if first_col in ['Trades', 'Dividends', 'Withholding Tax', 'Fees', 
                             'Open Positions', 'Interest']:
                 break
             
-            # Look for cash balance lines
-            if second_col in ['Ending Cash', 'Total']:
+            # Look for "Ending Cash" with Data type
+            if second_col == 'Data' and third_col == 'Ending Cash':
                 try:
-                    currency = self._safe_str(row[2]) if len(row) > 2 else ''
-                    amount = self._safe_float(row[-1])
+                    currency = self._safe_str(row[3])
+                    amount = self._safe_float(row[4])
                     
-                    if currency and amount != 0:
+                    if currency and currency != 'Total' and amount != 0:
                         self.cash_balances.append({
                             'currency': currency,
                             'amount': amount,
                         })
                 except Exception as e:
                     logger.debug(f"Skipping cash row {idx}: {e}")
+        
+        logger.info(f"✅ Processed {len(self.cash_balances)} cash balances")
     
     def _parse_forex(self):
         """Parse Forex P/L section"""
@@ -393,35 +436,38 @@ class IBKRActivityParser:
         
         header_idx = None
         for idx in range(section_start, min(section_start + 10, len(self.raw_df))):
-            if pd.notna(self.raw_df.iloc[idx, 0]) and 'Header' in str(self.raw_df.iloc[idx, 0]):
+            if pd.notna(self.raw_df.iloc[idx, 1]) and str(self.raw_df.iloc[idx, 1]).strip() == 'Header':
                 header_idx = idx
                 break
         
         if header_idx is None:
+            logger.warning("⚠️ Forex P/L header not found")
             return
         
         for idx in range(header_idx + 1, len(self.raw_df)):
             row = self.raw_df.iloc[idx]
             first_col = str(row[0]).strip() if pd.notna(row[0]) else ""
+            second_col = str(row[1]).strip() if pd.notna(row[1]) else ""
             
             if first_col in ['Trades', 'Dividends', 'Withholding Tax', 'Fees', 
                             'Open Positions', 'Cash Report', 'Interest']:
                 break
             
-            if pd.isna(row[0]) or first_col in ['Header', 'Total', 'SubTotal']:
+            if second_col != 'Data':
                 continue
             
             try:
                 forex = {
-                    'asset_category': self._safe_str(row[1]),
-                    'currency': self._safe_str(row[2]),
-                    'symbol': self._safe_str(row[3]),
-                    'date_time': self._safe_str(row[4]),
-                    'quantity': self._safe_float(row[5]),
-                    'proceeds': self._safe_float(row[6]),
-                    'cost_basis': self._safe_float(row[7]),
-                    'realized_pl': self._safe_float(row[8]),
-                    'code': self._safe_str(row[9]) if len(row) > 9 else '',
+                    'discriminator': self._safe_str(row[2]),
+                    'asset_category': self._safe_str(row[3]),
+                    'currency': self._safe_str(row[4]),
+                    'symbol': self._safe_str(row[5]),
+                    'date_time': self._safe_str(row[6]),
+                    'quantity': self._safe_float(row[7]),
+                    'proceeds': self._safe_float(row[8]),
+                    'cost_basis': self._safe_float(row[9]),
+                    'realized_pl': self._safe_float(row[10]),
+                    'code': self._safe_str(row[11]) if len(row) > 11 else '',
                 }
                 
                 if forex['symbol']:
@@ -429,6 +475,8 @@ class IBKRActivityParser:
                     
             except Exception as e:
                 logger.debug(f"Skipping forex row {idx}: {e}")
+        
+        logger.info(f"✅ Processed {len(self.forex_transactions)} forex transactions")
     
     def _parse_securities_lending(self):
         """Parse Securities Lending section"""
@@ -441,30 +489,32 @@ class IBKRActivityParser:
         
         header_idx = None
         for idx in range(section_start, min(section_start + 10, len(self.raw_df))):
-            if pd.notna(self.raw_df.iloc[idx, 0]) and 'Header' in str(self.raw_df.iloc[idx, 0]):
+            if pd.notna(self.raw_df.iloc[idx, 1]) and str(self.raw_df.iloc[idx, 1]).strip() == 'Header':
                 header_idx = idx
                 break
         
         if header_idx is None:
+            logger.warning("⚠️ Securities Lending header not found")
             return
         
         for idx in range(header_idx + 1, len(self.raw_df)):
             row = self.raw_df.iloc[idx]
             first_col = str(row[0]).strip() if pd.notna(row[0]) else ""
+            second_col = str(row[1]).strip() if pd.notna(row[1]) else ""
             
             if first_col in ['Trades', 'Dividends', 'Withholding Tax', 'Fees', 
                             'Open Positions', 'Cash Report', 'Interest']:
                 break
             
-            if pd.isna(row[0]) or first_col in ['Header', 'Total', 'SubTotal']:
+            if second_col != 'Data':
                 continue
             
             try:
                 lending = {
-                    'currency': self._safe_str(row[1]),
-                    'date': self._safe_str(row[2]),
-                    'description': self._safe_str(row[3]) if len(row) > 3 else '',
-                    'amount': self._safe_float(row[-1]),
+                    'currency': self._safe_str(row[2]),
+                    'date': self._safe_str(row[3]),
+                    'description': self._safe_str(row[4]),
+                    'amount': self._safe_float(row[5]),
                 }
                 
                 if lending['amount'] != 0:
@@ -472,6 +522,8 @@ class IBKRActivityParser:
                     
             except Exception as e:
                 logger.debug(f"Skipping lending row {idx}: {e}")
+        
+        logger.info(f"✅ Processed {len(self.securities_lending)} securities lending entries")
     
     def _safe_float(self, value) -> float:
         """Safely convert to float"""
