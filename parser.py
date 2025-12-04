@@ -240,9 +240,9 @@ class ActivityStatementParser:
             elif row[1] == 'Data':
                 item = {
                     'asset_class': row[2] if len(row) > 2 else '',
-                    'prior_period': self._safe_decimal(row[3]) if len(row) > 3 else 0,
-                    'this_period': self._safe_decimal(row[4]) if len(row) > 4 else 0,
-                    'change': self._safe_decimal(row[5]) if len(row) > 5 else 0
+                    'prior_period': self._safe_decimal(row[3] if len(row) > 3 else ''),
+                    'this_period': self._safe_decimal(row[4] if len(row) > 4 else ''),
+                    'change': self._safe_decimal(row[5] if len(row) > 5 else '')
                 }
                 data['items'].append(item)
         
@@ -261,12 +261,12 @@ class ActivityStatementParser:
             elif row[1] == 'Data':
                 item = {
                     'asset_class': row[2] if len(row) > 2 else '',
-                    'prior_period_mtm': self._safe_decimal(row[3]) if len(row) > 3 else 0,
-                    'transaction_mtm': self._safe_decimal(row[4]) if len(row) > 4 else 0,
-                    'mtm_price_fluctuation': self._safe_decimal(row[5]) if len(row) > 5 else 0,
-                    'commissions': self._safe_decimal(row[6]) if len(row) > 6 else 0,
-                    'other_fees': self._safe_decimal(row[7]) if len(row) > 7 else 0,
-                    'total': self._safe_decimal(row[8]) if len(row) > 8 else 0
+                    'prior_period_mtm': self._safe_decimal(row[3] if len(row) > 3 else ''),
+                    'transaction_mtm': self._safe_decimal(row[4] if len(row) > 4 else ''),
+                    'mtm_price_fluctuation': self._safe_decimal(row[5] if len(row) > 5 else ''),
+                    'commissions': self._safe_decimal(row[6] if len(row) > 6 else ''),
+                    'other_fees': self._safe_decimal(row[7] if len(row) > 7 else ''),
+                    'total': self._safe_decimal(row[8] if len(row) > 8 else '')
                 }
                 data['items'].append(item)
         
@@ -286,9 +286,9 @@ class ActivityStatementParser:
                 item = {
                     'asset_class': row[2] if len(row) > 2 else '',
                     'code': row[3] if len(row) > 3 else '',
-                    'realized_pl': self._safe_decimal(row[4]) if len(row) > 4 else 0,
-                    'unrealized_pl': self._safe_decimal(row[5]) if len(row) > 5 else 0,
-                    'total': self._safe_decimal(row[6]) if len(row) > 6 else 0
+                    'realized_pl': self._safe_decimal(row[4] if len(row) > 4 else ''),
+                    'unrealized_pl': self._safe_decimal(row[5] if len(row) > 5 else ''),
+                    'total': self._safe_decimal(row[6] if len(row) > 6 else '')
                 }
                 data['items'].append(item)
         
@@ -310,13 +310,13 @@ class ActivityStatementParser:
                     'asset_category': row[3] if len(row) > 3 else '',
                     'currency': row[4] if len(row) > 4 else '',
                     'symbol': row[5] if len(row) > 5 else '',
-                    'quantity': self._safe_decimal(row[6]) if len(row) > 6 else 0,
+                    'quantity': self._safe_decimal(row[6] if len(row) > 6 else ''),
                     'mult': self._safe_decimal(row[7]) if len(row) > 7 else 1,
-                    'cost_price': self._safe_decimal(row[8]) if len(row) > 8 else 0,
-                    'cost_basis': self._safe_decimal(row[9]) if len(row) > 9 else 0,
-                    'close_price': self._safe_decimal(row[10]) if len(row) > 10 else 0,
-                    'value': self._safe_decimal(row[11]) if len(row) > 11 else 0,
-                    'unrealized_pl': self._safe_decimal(row[12]) if len(row) > 12 else 0,
+                    'cost_price': self._safe_decimal(row[8] if len(row) > 8 else ''),
+                    'cost_basis': self._safe_decimal(row[9] if len(row) > 9 else ''),
+                    'close_price': self._safe_decimal(row[10] if len(row) > 10 else ''),
+                    'value': self._safe_decimal(row[11] if len(row) > 11 else ''),
+                    'unrealized_pl': self._safe_decimal(row[12] if len(row) > 12 else ''),
                     'code': row[13] if len(row) > 13 else ''
                 }
                 data['items'].append(item)
@@ -340,11 +340,11 @@ class ActivityStatementParser:
                     'currency': row[4] if len(row) > 4 else '',
                     'symbol': row[5] if len(row) > 5 else '',
                     'date_time': row[6] if len(row) > 6 else '',
-                    'quantity': self._safe_decimal(row[7]) if len(row) > 7 else 0,
-                    't_price': self._safe_decimal(row[8]) if len(row) > 8 else 0,
-                    'c_price': self._safe_decimal(row[9]) if len(row) > 9 else 0,
-                    'proceeds': self._safe_decimal(row[10]) if len(row) > 10 else 0,
-                    'comm_fee': self._safe_decimal(row[11]) if len(row) > 11 else 0,
+                    'quantity': self._safe_decimal(row[7] if len(row) > 7 else ''),
+                    't_price': self._safe_decimal(row[8] if len(row) > 8 else ''),
+                    'c_price': self._safe_decimal(row[9] if len(row) > 9 else ''),
+                    'proceeds': self._safe_decimal(row[10] if len(row) > 10 else ''),
+                    'comm_fee': self._safe_decimal(row[11] if len(row) > 11 else ''),
                     'basis': row[12] if len(row) > 12 else '',
                     'realized_pl': row[13] if len(row) > 13 else '',
                     'mtm_pl': row[14] if len(row) > 14 else '',
@@ -369,7 +369,7 @@ class ActivityStatementParser:
                     'currency': row[2] if len(row) > 2 else '',
                     'date': row[3] if len(row) > 3 else '',
                     'description': row[4] if len(row) > 4 else '',
-                    'amount': self._safe_decimal(row[5]) if len(row) > 5 else 0
+                    'amount': self._safe_decimal(row[5] if len(row) > 5 else '')
                 }
                 data['items'].append(item)
         
@@ -390,7 +390,7 @@ class ActivityStatementParser:
                     'currency': row[2] if len(row) > 2 else '',
                     'date': row[3] if len(row) > 3 else '',
                     'description': row[4] if len(row) > 4 else '',
-                    'amount': self._safe_decimal(row[5]) if len(row) > 5 else 0
+                    'amount': self._safe_decimal(row[5] if len(row) > 5 else '')
                 }
                 data['items'].append(item)
         
@@ -411,7 +411,7 @@ class ActivityStatementParser:
                     'currency': row[2] if len(row) > 2 else '',
                     'date': row[3] if len(row) > 3 else '',
                     'description': row[4] if len(row) > 4 else '',
-                    'amount': self._safe_decimal(row[5]) if len(row) > 5 else 0
+                    'amount': self._safe_decimal(row[5] if len(row) > 5 else '')
                 }
                 data['items'].append(item)
         
@@ -433,7 +433,7 @@ class ActivityStatementParser:
                     'currency': row[3] if len(row) > 3 else '',
                     'date': row[4] if len(row) > 4 else '',
                     'description': row[5] if len(row) > 5 else '',
-                    'amount': self._safe_decimal(row[6]) if len(row) > 6 else 0
+                    'amount': self._safe_decimal(row[6] if len(row) > 6 else '')
                 }
                 data['items'].append(item)
         
@@ -453,13 +453,13 @@ class ActivityStatementParser:
                 item = {
                     'asset_category': row[2] if len(row) > 2 else '',
                     'currency': row[3] if len(row) > 3 else '',
-                    'quantity': self._safe_decimal(row[4]) if len(row) > 4 else 0,
-                    'cost_price': self._safe_decimal(row[5]) if len(row) > 5 else 0,
-                    'cost_basis': self._safe_decimal(row[6]) if len(row) > 6 else 0,
-                    'close_price': self._safe_decimal(row[7]) if len(row) > 7 else 0,
-                    'value': self._safe_decimal(row[8]) if len(row) > 8 else 0,
-                    'unrealized_pl': self._safe_decimal(row[9]) if len(row) > 9 else 0,
-                    'pct_of_nav': self._safe_decimal(row[10]) if len(row) > 10 else 0
+                    'quantity': self._safe_decimal(row[4] if len(row) > 4 else ''),
+                    'cost_price': self._safe_decimal(row[5] if len(row) > 5 else ''),
+                    'cost_basis': self._safe_decimal(row[6] if len(row) > 6 else ''),
+                    'close_price': self._safe_decimal(row[7] if len(row) > 7 else ''),
+                    'value': self._safe_decimal(row[8] if len(row) > 8 else ''),
+                    'unrealized_pl': self._safe_decimal(row[9] if len(row) > 9 else ''),
+                    'pct_of_nav': self._safe_decimal(row[10] if len(row) > 10 else '')
                 }
                 data['items'].append(item)
         
@@ -478,9 +478,9 @@ class ActivityStatementParser:
             elif row[1] == 'Data':
                 item = {
                     'currency': row[2] if len(row) > 2 else '',
-                    'total': self._safe_decimal(row[3]) if len(row) > 3 else 0,
-                    'securities': self._safe_decimal(row[4]) if len(row) > 4 else 0,
-                    'futures': self._safe_decimal(row[5]) if len(row) > 5 else 0
+                    'total': self._safe_decimal(row[3] if len(row) > 3 else ''),
+                    'securities': self._safe_decimal(row[4] if len(row) > 4 else ''),
+                    'futures': self._safe_decimal(row[5] if len(row) > 5 else '')
                 }
                 data['items'].append(item)
         
@@ -501,9 +501,9 @@ class ActivityStatementParser:
                     'currency': row[2] if len(row) > 2 else '',
                     'date': row[3] if len(row) > 3 else '',
                     'symbol': row[4] if len(row) > 4 else '',
-                    'quantity': self._safe_decimal(row[5]) if len(row) > 5 else 0,
-                    'fee_rate': self._safe_decimal(row[6]) if len(row) > 6 else 0,
-                    'amount': self._safe_decimal(row[7]) if len(row) > 7 else 0
+                    'quantity': self._safe_decimal(row[5] if len(row) > 5 else ''),
+                    'fee_rate': self._safe_decimal(row[6] if len(row) > 6 else ''),
+                    'amount': self._safe_decimal(row[7] if len(row) > 7 else '')
                 }
                 data['items'].append(item)
         

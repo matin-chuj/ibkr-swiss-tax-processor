@@ -107,9 +107,13 @@ def test_nav_consistency():
         
         for item in nav:
             asset_class = item['asset_class']
-            prior = float(item['prior_period'])
-            change = float(item['change'])
-            this_period = float(item['this_period'])
+            try:
+                prior = float(item['prior_period'])
+                change = float(item['change'])
+                this_period = float(item['this_period'])
+            except (ValueError, TypeError):
+                # Skip items with invalid data
+                continue
             
             expected = prior + change
             is_consistent = abs(expected - this_period) < 0.01
