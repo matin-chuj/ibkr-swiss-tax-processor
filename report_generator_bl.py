@@ -33,11 +33,11 @@ class BaselLandschaftReportGenerator:
         
         logger.info("📊 Generating all reports...")
         
-        # Generate Excel report
+        # Generate Excel report (Wertschriftenverzeichnis - Assets Register)
         excel_file = output_path / f'Wertschriftenverzeichnis_BL_{self.tax_year}.xlsx'
         self.generate_excel_report(str(excel_file))
         
-        # Generate PDF report
+        # Generate PDF report (Tax Report)
         pdf_file = output_path / f'Tax_Report_BL_{self.tax_year}.pdf'
         self.generate_pdf_report(str(pdf_file))
         
@@ -58,25 +58,25 @@ class BaselLandschaftReportGenerator:
         logger.info(f"📊 Generating Excel report: {filename}")
         
         with pd.ExcelWriter(filename, engine='openpyxl') as writer:
-            # Section 1: Vermögensaufstellung (Assets)
+            # Section 1: Assets overview (Vermögensaufstellung)
             self._write_assets_sheet(writer)
             
-            # Section 2: Einkünfte (Income)
+            # Section 2: Income details (Einkünfte)
             self._write_income_sheet(writer)
             
-            # Section 3: Kapitalgewinne (Capital Gains)
+            # Section 3: Realized capital gains (Kapitalgewinne)
             self._write_capital_gains_sheet(writer)
             
-            # Section 4: Niezrealizowane zyski (Unrealized Gains)
+            # Section 4: Unrealized gains (Niezrealizowane zyski)
             self._write_unrealized_gains_sheet(writer)
             
-            # Section 5: Koszty (Expenses)
+            # Section 5: Deductible expenses (Koszty)
             self._write_expenses_sheet(writer)
             
-            # Section 6: Forex P/L
+            # Section 6: Foreign exchange P/L (Forex)
             self._write_forex_sheet(writer)
             
-            # Section 7: Podsumowanie podatkowe (Tax Summary)
+            # Section 7: Tax summary (Podsumowanie podatkowe)
             self._write_tax_summary_sheet(writer)
         
         logger.info(f"✅ Excel report created: {filename}")

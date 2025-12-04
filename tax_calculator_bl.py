@@ -371,11 +371,13 @@ class BaselLandschaftTaxCalculator:
         foreign_tax_paid = self.income['withholding_tax_total']
         
         # Foreign tax credit is limited to the portion of Swiss tax attributable to foreign income
-        # Simplified: min(foreign taxes paid, income tax * (foreign income / total income))
+        # All investment income is typically foreign, so we use 100% ratio
+        # In practice, a tax advisor would calculate this more precisely
         if gross_income > 0:
-            foreign_income_ratio = min(1.0, gross_income / max(1, gross_income))
+            # Assume all investment income is foreign-sourced
+            foreign_income_ratio = 1.0
         else:
-            foreign_income_ratio = 0
+            foreign_income_ratio = 0.0
             
         max_foreign_credit = income_tax * foreign_income_ratio
         foreign_tax_credit = min(foreign_tax_paid, max_foreign_credit)
