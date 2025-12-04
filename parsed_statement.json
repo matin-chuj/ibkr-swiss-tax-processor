@@ -1,0 +1,589 @@
+{
+  "Statement": {
+    "Field Name": "Field Value",
+    "Title": "Activity Statement",
+    "Period": "January 1, 2025 - December 3, 2025",
+    "When Generated": "December 3, 2025, 11:00:00 PM EST",
+    "Account": "U11673931",
+    "Name": "John Doe",
+    "Address": "123 Main St, Anytown, USA"
+  },
+  "Account Information": {
+    "Account ID": "U11673931",
+    "Account Type": "Individual",
+    "Customer Type": "Individual",
+    "Account Capabilities": "Cash",
+    "Base Currency": "CHF",
+    "Account Alias": "Investment Account"
+  },
+  "Net Asset Value": {
+    "items": [
+      {
+        "asset_class": "Stocks",
+        "prior_period": 50000.0,
+        "this_period": 52000.0,
+        "change": 2000.0
+      },
+      {
+        "asset_class": "Forex",
+        "prior_period": 5000.0,
+        "this_period": 5100.0,
+        "change": 100.0
+      },
+      {
+        "asset_class": "Cash",
+        "prior_period": 10000.0,
+        "this_period": 9500.0,
+        "change": -500.0
+      },
+      {
+        "asset_class": "Total",
+        "prior_period": 65000.0,
+        "this_period": 66600.0,
+        "change": 1600.0
+      }
+    ],
+    "header": [
+      "Asset Class",
+      "Prior Period",
+      "This Period",
+      "Change"
+    ]
+  },
+  "Mark-to-Market Performance": {
+    "items": [
+      {
+        "asset_class": "Stocks",
+        "prior_period_mtm": 1000.0,
+        "transaction_mtm": 500.0,
+        "mtm_price_fluctuation": 1500.0,
+        "commissions": 50.0,
+        "other_fees": 10.0,
+        "total": 1440.0
+      },
+      {
+        "asset_class": "Forex",
+        "prior_period_mtm": 100.0,
+        "transaction_mtm": 50.0,
+        "mtm_price_fluctuation": 150.0,
+        "commissions": 5.0,
+        "other_fees": 1.0,
+        "total": 144.0
+      },
+      {
+        "asset_class": "Total",
+        "prior_period_mtm": 1100.0,
+        "transaction_mtm": 550.0,
+        "mtm_price_fluctuation": 1650.0,
+        "commissions": 55.0,
+        "other_fees": 11.0,
+        "total": 1584.0
+      }
+    ],
+    "header": [
+      "Asset Class",
+      "Prior Period MTM P/L",
+      "Transaction MTM P/L",
+      "MTM and Price Fluctuation P/L",
+      "Commissions",
+      "Other Fees",
+      "Total"
+    ]
+  },
+  "Realized & Unrealized Performance": {
+    "items": [
+      {
+        "asset_class": "Stocks",
+        "code": "STK",
+        "realized_pl": 1500.0,
+        "unrealized_pl": 500.0,
+        "total": 2000.0
+      },
+      {
+        "asset_class": "Forex",
+        "code": "CASH",
+        "realized_pl": 100.0,
+        "unrealized_pl": 50.0,
+        "total": 150.0
+      },
+      {
+        "asset_class": "Total",
+        "code": "",
+        "realized_pl": 1600.0,
+        "unrealized_pl": 550.0,
+        "total": 2150.0
+      }
+    ],
+    "header": [
+      "Asset Class",
+      "Code",
+      "Realized P/L",
+      "Unrealized P/L",
+      "Total"
+    ]
+  },
+  "Open Positions": {
+    "items": [
+      {
+        "data_discriminator": "Summary",
+        "asset_category": "Stocks",
+        "currency": "USD",
+        "symbol": "AAPL",
+        "quantity": 100.0,
+        "mult": 1.0,
+        "cost_price": 150.0,
+        "cost_basis": 15000.0,
+        "close_price": 180.0,
+        "value": 18000.0,
+        "unrealized_pl": 3000.0,
+        "code": ""
+      },
+      {
+        "data_discriminator": "Summary",
+        "asset_category": "Stocks",
+        "currency": "EUR",
+        "symbol": "SAP",
+        "quantity": 50.0,
+        "mult": 1.0,
+        "cost_price": 100.0,
+        "cost_basis": 5000.0,
+        "close_price": 110.0,
+        "value": 5500.0,
+        "unrealized_pl": 500.0,
+        "code": ""
+      },
+      {
+        "data_discriminator": "Summary",
+        "asset_category": "Stocks",
+        "currency": "JPY",
+        "symbol": "7203",
+        "quantity": 200.0,
+        "mult": 1.0,
+        "cost_price": 1000.0,
+        "cost_basis": 200000.0,
+        "close_price": 1100.0,
+        "value": 220000.0,
+        "unrealized_pl": 20000.0,
+        "code": ""
+      }
+    ],
+    "header": [
+      "DataDiscriminator",
+      "Asset Category",
+      "Currency",
+      "Symbol",
+      "Quantity",
+      "Mult",
+      "Cost Price",
+      "Cost Basis",
+      "Close Price",
+      "Value",
+      "Unrealized P/L",
+      "Code"
+    ]
+  },
+  "Trades": {
+    "items": [
+      {
+        "data_discriminator": "Order",
+        "asset_category": "Stocks",
+        "currency": "USD",
+        "symbol": "AAPL",
+        "date_time": "2025-01-15",
+        "quantity": 50.0,
+        "t_price": 145.0,
+        "c_price": 145.0,
+        "proceeds": -7250.0,
+        "comm_fee": -1.5,
+        "basis": "",
+        "realized_pl": "",
+        "mtm_pl": "",
+        "code": "O"
+      },
+      {
+        "data_discriminator": "Order",
+        "asset_category": "Stocks",
+        "currency": "USD",
+        "symbol": "AAPL",
+        "date_time": "2025-03-20",
+        "quantity": 50.0,
+        "t_price": 155.0,
+        "c_price": 155.0,
+        "proceeds": -7750.0,
+        "comm_fee": -1.5,
+        "basis": "",
+        "realized_pl": "",
+        "mtm_pl": "",
+        "code": "O"
+      },
+      {
+        "data_discriminator": "Order",
+        "asset_category": "Stocks",
+        "currency": "EUR",
+        "symbol": "SAP",
+        "date_time": "2025-02-10",
+        "quantity": 50.0,
+        "t_price": 95.0,
+        "c_price": 95.0,
+        "proceeds": -4750.0,
+        "comm_fee": -2.0,
+        "basis": "",
+        "realized_pl": "",
+        "mtm_pl": "",
+        "code": "O"
+      },
+      {
+        "data_discriminator": "Order",
+        "asset_category": "Stocks",
+        "currency": "JPY",
+        "symbol": "7203",
+        "date_time": "2025-04-05",
+        "quantity": 200.0,
+        "t_price": 950.0,
+        "c_price": 950.0,
+        "proceeds": -190000.0,
+        "comm_fee": -500.0,
+        "basis": "",
+        "realized_pl": "",
+        "mtm_pl": "",
+        "code": "O"
+      },
+      {
+        "data_discriminator": "Order",
+        "asset_category": "Forex",
+        "currency": "USD",
+        "symbol": "EUR.USD",
+        "date_time": "2025-05-12",
+        "quantity": 1000.0,
+        "t_price": 1.08,
+        "c_price": 1.08,
+        "proceeds": 1080.0,
+        "comm_fee": -2.0,
+        "basis": "",
+        "realized_pl": "",
+        "mtm_pl": "",
+        "code": ""
+      },
+      {
+        "data_discriminator": "Order",
+        "asset_category": "Forex",
+        "currency": "JPY",
+        "symbol": "USD.JPY",
+        "date_time": "2025-06-18",
+        "quantity": 100000.0,
+        "t_price": 145.5,
+        "c_price": 145.5,
+        "proceeds": 687.29,
+        "comm_fee": -2.0,
+        "basis": "",
+        "realized_pl": "",
+        "mtm_pl": "",
+        "code": ""
+      }
+    ],
+    "header": [
+      "DataDiscriminator",
+      "Asset Category",
+      "Currency",
+      "Symbol",
+      "Date/Time",
+      "Quantity",
+      "T. Price",
+      "C. Price",
+      "Proceeds",
+      "Comm/Fee",
+      "Basis",
+      "Realized P/L",
+      "MTM P/L",
+      "Code"
+    ]
+  },
+  "Dividends": {
+    "items": [
+      {
+        "currency": "USD",
+        "date": "2025-02-01",
+        "description": "AAPL(US0378331005) Cash Dividend USD 0.24 per Share (Ordinary Dividend)",
+        "amount": 24.0
+      },
+      {
+        "currency": "USD",
+        "date": "2025-05-03",
+        "description": "AAPL(US0378331005) Cash Dividend USD 0.24 per Share (Ordinary Dividend)",
+        "amount": 24.0
+      },
+      {
+        "currency": "EUR",
+        "date": "2025-03-15",
+        "description": "SAP(DE0007164600) Cash Dividend EUR 2.20 per Share (Ordinary Dividend)",
+        "amount": 110.0
+      },
+      {
+        "currency": "USD",
+        "date": "2025-08-02",
+        "description": "AAPL(US0378331005) Cash Dividend USD 0.24 per Share (Ordinary Dividend)",
+        "amount": 24.0
+      },
+      {
+        "currency": "USD",
+        "date": "2025-11-01",
+        "description": "AAPL(US0378331005) Cash Dividend USD 0.24 per Share (Ordinary Dividend)",
+        "amount": 24.0
+      }
+    ],
+    "header": [
+      "Currency",
+      "Date",
+      "Description",
+      "Amount"
+    ]
+  },
+  "Withholding Tax": {
+    "items": [
+      {
+        "currency": "USD",
+        "date": "2025-02-01",
+        "description": "AAPL(US0378331005) Cash Dividend USD 0.24 per Share - US Tax",
+        "amount": -3.6
+      },
+      {
+        "currency": "USD",
+        "date": "2025-05-03",
+        "description": "AAPL(US0378331005) Cash Dividend USD 0.24 per Share - US Tax",
+        "amount": -3.6
+      },
+      {
+        "currency": "EUR",
+        "date": "2025-03-15",
+        "description": "SAP(DE0007164600) Cash Dividend EUR 2.20 per Share - DE Tax",
+        "amount": -29.15
+      },
+      {
+        "currency": "USD",
+        "date": "2025-08-02",
+        "description": "AAPL(US0378331005) Cash Dividend USD 0.24 per Share - US Tax",
+        "amount": -3.6
+      },
+      {
+        "currency": "USD",
+        "date": "2025-11-01",
+        "description": "AAPL(US0378331005) Cash Dividend USD 0.24 per Share - US Tax",
+        "amount": -3.6
+      }
+    ],
+    "header": [
+      "Currency",
+      "Date",
+      "Description",
+      "Amount"
+    ]
+  },
+  "Interest": {
+    "items": [
+      {
+        "currency": "CHF",
+        "date": "2025-01-31",
+        "description": "CHF Credit Interest for Jan-2025",
+        "amount": 5.25
+      },
+      {
+        "currency": "CHF",
+        "date": "2025-02-28",
+        "description": "CHF Credit Interest for Feb-2025",
+        "amount": 4.8
+      },
+      {
+        "currency": "CHF",
+        "date": "2025-03-31",
+        "description": "CHF Credit Interest for Mar-2025",
+        "amount": 5.1
+      },
+      {
+        "currency": "USD",
+        "date": "2025-04-30",
+        "description": "USD Credit Interest for Apr-2025",
+        "amount": 2.35
+      },
+      {
+        "currency": "CHF",
+        "date": "2025-05-31",
+        "description": "CHF Credit Interest for May-2025",
+        "amount": 5.45
+      }
+    ],
+    "header": [
+      "Currency",
+      "Date",
+      "Description",
+      "Amount"
+    ]
+  },
+  "Fees": {
+    "items": [
+      {
+        "subtitle": "Other Fees",
+        "currency": "CHF",
+        "date": "2025-01-15",
+        "description": "Market Data Subscription",
+        "amount": -10.0
+      },
+      {
+        "subtitle": "Other Fees",
+        "currency": "USD",
+        "date": "2025-02-20",
+        "description": "Transfer Fee",
+        "amount": -5.0
+      },
+      {
+        "subtitle": "Other Fees",
+        "currency": "CHF",
+        "date": "2025-03-10",
+        "description": "Regulatory Fee",
+        "amount": -2.5
+      }
+    ],
+    "header": [
+      "Subtitle",
+      "Currency",
+      "Date",
+      "Description",
+      "Amount"
+    ]
+  },
+  "Forex Balances": {
+    "items": [
+      {
+        "asset_category": "Cash",
+        "currency": "USD",
+        "quantity": 5000.0,
+        "cost_price": 0.88,
+        "cost_basis": 4400.0,
+        "close_price": 0.89,
+        "value": 4450.0,
+        "unrealized_pl": 50.0,
+        "pct_of_nav": 6.68
+      },
+      {
+        "asset_category": "Cash",
+        "currency": "EUR",
+        "quantity": 3000.0,
+        "cost_price": 0.93,
+        "cost_basis": 2790.0,
+        "close_price": 0.94,
+        "value": 2820.0,
+        "unrealized_pl": 30.0,
+        "pct_of_nav": 4.23
+      },
+      {
+        "asset_category": "Cash",
+        "currency": "CHF",
+        "quantity": 45000.0,
+        "cost_price": 1.0,
+        "cost_basis": 45000.0,
+        "close_price": 1.0,
+        "value": 45000.0,
+        "unrealized_pl": 0.0,
+        "pct_of_nav": 67.57
+      },
+      {
+        "asset_category": "Cash",
+        "currency": "JPY",
+        "quantity": 500000.0,
+        "cost_price": 0.0058,
+        "cost_basis": 2900.0,
+        "close_price": 0.0059,
+        "value": 2950.0,
+        "unrealized_pl": 50.0,
+        "pct_of_nav": 4.43
+      }
+    ],
+    "header": [
+      "Asset Category",
+      "Currency",
+      "Quantity",
+      "Cost Price",
+      "Cost Basis",
+      "Close Price",
+      "Value",
+      "Unrealized P/L",
+      "% Of NAV"
+    ]
+  },
+  "Cash Report": {
+    "items": [
+      {
+        "currency": "CHF",
+        "total": 45000.0,
+        "securities": 45000.0,
+        "futures": 0.0
+      },
+      {
+        "currency": "USD",
+        "total": 5000.0,
+        "securities": 5000.0,
+        "futures": 0.0
+      },
+      {
+        "currency": "EUR",
+        "total": 3000.0,
+        "securities": 3000.0,
+        "futures": 0.0
+      },
+      {
+        "currency": "JPY",
+        "total": 500000.0,
+        "securities": 500000.0,
+        "futures": 0.0
+      },
+      {
+        "currency": "Total in CHF",
+        "total": 52270.0,
+        "securities": 52270.0,
+        "futures": 0.0
+      }
+    ],
+    "header": [
+      "Currency",
+      "Total",
+      "Securities",
+      "Futures",
+      ""
+    ]
+  },
+  "Securities Lending": {
+    "items": [
+      {
+        "currency": "USD",
+        "date": "2025-07-15",
+        "symbol": "AAPL",
+        "quantity": 100.0,
+        "fee_rate": 0.15,
+        "amount": 1.5
+      },
+      {
+        "currency": "USD",
+        "date": "2025-08-22",
+        "symbol": "AAPL",
+        "quantity": 100.0,
+        "fee_rate": 0.15,
+        "amount": 1.5
+      },
+      {
+        "currency": "EUR",
+        "date": "2025-09-10",
+        "symbol": "SAP",
+        "quantity": 50.0,
+        "fee_rate": 0.2,
+        "amount": 2.0
+      }
+    ],
+    "header": [
+      "Currency",
+      "Date",
+      "Symbol",
+      "Quantity",
+      "Fee Rate",
+      "Amount"
+    ]
+  }
+}

@@ -1,0 +1,88 @@
+Statement,Header,Field Name,Field Value
+Statement,Header,Title,Activity Statement
+Statement,Header,Period,"January 1, 2025 - December 3, 2025"
+Statement,Header,When Generated,"December 3, 2025, 11:00:00 PM EST"
+Statement,Header,Account,U11673931
+Statement,Header,Name,John Doe
+Statement,Header,Address,"123 Main St, Anytown, USA"
+
+Account Information,Header,Field Name,Field Value
+Account Information,Data,Account ID,U11673931
+Account Information,Data,Account Type,Individual
+Account Information,Data,Customer Type,Individual
+Account Information,Data,Account Capabilities,Cash
+Account Information,Data,Base Currency,CHF
+Account Information,Data,Account Alias,Investment Account
+
+Net Asset Value,Header,Asset Class,Prior Period,This Period,Change
+Net Asset Value,Data,Stocks,50000.00,52000.00,2000.00
+Net Asset Value,Data,Forex,5000.00,5100.00,100.00
+Net Asset Value,Data,Cash,10000.00,9500.00,-500.00
+Net Asset Value,Data,Total,65000.00,66600.00,1600.00
+
+Mark-to-Market Performance,Header,Asset Class,Prior Period MTM P/L,Transaction MTM P/L,MTM and Price Fluctuation P/L,Commissions,Other Fees,Total
+Mark-to-Market Performance,Data,Stocks,1000.00,500.00,1500.00,50.00,10.00,1440.00
+Mark-to-Market Performance,Data,Forex,100.00,50.00,150.00,5.00,1.00,144.00
+Mark-to-Market Performance,Data,Total,1100.00,550.00,1650.00,55.00,11.00,1584.00
+
+Realized & Unrealized Performance,Header,Asset Class,Code,Realized P/L,Unrealized P/L,Total
+Realized & Unrealized Performance,Data,Stocks,STK,1500.00,500.00,2000.00
+Realized & Unrealized Performance,Data,Forex,CASH,100.00,50.00,150.00
+Realized & Unrealized Performance,Data,Total,,1600.00,550.00,2150.00
+
+Open Positions,Header,DataDiscriminator,Asset Category,Currency,Symbol,Quantity,Mult,Cost Price,Cost Basis,Close Price,Value,Unrealized P/L,Code
+Open Positions,Data,Summary,Stocks,USD,AAPL,100,1,150.00,15000.00,180.00,18000.00,3000.00,
+Open Positions,Data,Summary,Stocks,EUR,SAP,50,1,100.00,5000.00,110.00,5500.00,500.00,
+Open Positions,Data,Summary,Stocks,JPY,7203,200,1,1000.00,200000.00,1100.00,220000.00,20000.00,
+
+Trades,Header,DataDiscriminator,Asset Category,Currency,Symbol,Date/Time,Quantity,T. Price,C. Price,Proceeds,Comm/Fee,Basis,Realized P/L,MTM P/L,Code
+Trades,Data,Order,Stocks,USD,AAPL,2025-01-15,50,145.00,145.00,-7250.00,-1.50,,,,O
+Trades,Data,Order,Stocks,USD,AAPL,2025-03-20,50,155.00,155.00,-7750.00,-1.50,,,,O
+Trades,Data,Order,Stocks,EUR,SAP,2025-02-10,50,95.00,95.00,-4750.00,-2.00,,,,O
+Trades,Data,Order,Stocks,JPY,7203,2025-04-05,200,950.00,950.00,-190000.00,-500.00,,,,O
+Trades,Data,Order,Forex,USD,EUR.USD,2025-05-12,1000,1.08,1.08,1080.00,-2.00,,,,
+Trades,Data,Order,Forex,JPY,USD.JPY,2025-06-18,100000,145.50,145.50,687.29,-2.00,,,,
+
+Dividends,Header,Currency,Date,Description,Amount
+Dividends,Data,USD,2025-02-01,AAPL(US0378331005) Cash Dividend USD 0.24 per Share (Ordinary Dividend),24.00
+Dividends,Data,USD,2025-05-03,AAPL(US0378331005) Cash Dividend USD 0.24 per Share (Ordinary Dividend),24.00
+Dividends,Data,EUR,2025-03-15,SAP(DE0007164600) Cash Dividend EUR 2.20 per Share (Ordinary Dividend),110.00
+Dividends,Data,USD,2025-08-02,AAPL(US0378331005) Cash Dividend USD 0.24 per Share (Ordinary Dividend),24.00
+Dividends,Data,USD,2025-11-01,AAPL(US0378331005) Cash Dividend USD 0.24 per Share (Ordinary Dividend),24.00
+
+Withholding Tax,Header,Currency,Date,Description,Amount
+Withholding Tax,Data,USD,2025-02-01,AAPL(US0378331005) Cash Dividend USD 0.24 per Share - US Tax,-3.60
+Withholding Tax,Data,USD,2025-05-03,AAPL(US0378331005) Cash Dividend USD 0.24 per Share - US Tax,-3.60
+Withholding Tax,Data,EUR,2025-03-15,SAP(DE0007164600) Cash Dividend EUR 2.20 per Share - DE Tax,-29.15
+Withholding Tax,Data,USD,2025-08-02,AAPL(US0378331005) Cash Dividend USD 0.24 per Share - US Tax,-3.60
+Withholding Tax,Data,USD,2025-11-01,AAPL(US0378331005) Cash Dividend USD 0.24 per Share - US Tax,-3.60
+
+Interest,Header,Currency,Date,Description,Amount
+Interest,Data,CHF,2025-01-31,CHF Credit Interest for Jan-2025,5.25
+Interest,Data,CHF,2025-02-28,CHF Credit Interest for Feb-2025,4.80
+Interest,Data,CHF,2025-03-31,CHF Credit Interest for Mar-2025,5.10
+Interest,Data,USD,2025-04-30,USD Credit Interest for Apr-2025,2.35
+Interest,Data,CHF,2025-05-31,CHF Credit Interest for May-2025,5.45
+
+Fees,Header,Subtitle,Currency,Date,Description,Amount
+Fees,Data,Other Fees,CHF,2025-01-15,Market Data Subscription,-10.00
+Fees,Data,Other Fees,USD,2025-02-20,Transfer Fee,-5.00
+Fees,Data,Other Fees,CHF,2025-03-10,Regulatory Fee,-2.50
+
+Forex Balances,Header,Asset Category,Currency,Quantity,Cost Price,Cost Basis,Close Price,Value,Unrealized P/L,% Of NAV
+Forex Balances,Data,Cash,USD,5000.00,0.88,4400.00,0.89,4450.00,50.00,6.68
+Forex Balances,Data,Cash,EUR,3000.00,0.93,2790.00,0.94,2820.00,30.00,4.23
+Forex Balances,Data,Cash,CHF,45000.00,1.00,45000.00,1.00,45000.00,0.00,67.57
+Forex Balances,Data,Cash,JPY,500000.00,0.0058,2900.00,0.0059,2950.00,50.00,4.43
+
+Cash Report,Header,Currency,Total,Securities,Futures,
+Cash Report,Data,CHF,45000.00,45000.00,0.00,
+Cash Report,Data,USD,5000.00,5000.00,0.00,
+Cash Report,Data,EUR,3000.00,3000.00,0.00,
+Cash Report,Data,JPY,500000.00,500000.00,0.00,
+Cash Report,Data,Total in CHF,52270.00,52270.00,0.00,
+
+Securities Lending,Header,Currency,Date,Symbol,Quantity,Fee Rate,Amount
+Securities Lending,Data,USD,2025-07-15,AAPL,100,0.15,1.50
+Securities Lending,Data,USD,2025-08-22,AAPL,100,0.15,1.50
+Securities Lending,Data,EUR,2025-09-10,SAP,50,0.20,2.00
