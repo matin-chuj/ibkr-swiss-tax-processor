@@ -50,9 +50,36 @@ class IBKRTaxProcessor:
         self.summary = {}
         
     def read_csv(self) -> pd.DataFrame:
-        """Read and parse IBKR CSV"""
-        df = pd.read_csv(self.csv_file, header=None)
-        return df
+        """Read and parse IBKR CSV with error handling for variable columns"""
+        try:
+            # IBKR CSVs have variable column counts per row
+            # Read all lines as text first, then process
+            with open(self.csv_file, 'r', encoding='utf-8') as f:
+                lines = f.readlines()
+            
+            # Parse each line manually to handle variable columns
+            data = []
+            for line in lines:
+                # Split by comma and strip whitespace
+                row = [cell.strip() for cell in line.strip().split(',')]
+                data.append(row)
+            
+            # Find max column count
+            max_cols = max(len(row) for row in data) if data else 0
+            
+            # Pad all rows to have the same number of columns
+            for row in data:
+                while len(row) < max_cols:
+                    row.append('')
+            
+            # Create DataFrame
+            df = pd.DataFrame(data)
+            logging.debug(f"Loaded DataFrame with shape: {df.shape}")
+            
+            return df
+        except Exception as e:
+            logging.error(f"Failed to read CSV file: {e}")
+            raise
     
     def parse_ibkr_statement(self):
         """Parse IBKR statement into organized sections with dynamic header detection"""
@@ -67,32 +94,47 @@ class IBKRTaxProcessor:
         
         for idx, row in df.iterrows():
             # Skip completely empty rows
-            if row.isna().all():
+            if row.isna().all() or (len(row) > 0 and str(row[0]).strip() == ''):
                 continue
             
-            first_col = str(row[0]).strip() if not pd.isna(row[0]) else ''
-            second_col = str(row[1]).strip() if len(row) > 1 and not pd.isna(row[1]) else ''
+            first_col = str(row[0]).strip() if not pd.isna(row[0]) and row[0] != '' else ''
+            second_col = str(row[1]).strip() if len(row) > 1 and not pd.isna(row[1]) and row[1] != '' else ''
             
-            # Detect section start (e.g., "Trades", "Dividends", etc.)
-            if first_col in ['Trades', 'Dividends', 'Withholding Tax', 'Fees', 
-                            'Open Positions', 'Cash Report', 'Interest', 'Change in Dividend Accruals']:
+            logging.debug(f"Row {idx}: first_col='{first_col}', second_col='{second_col}'")
+            
+            # Skip if both are empty
+            if not first_col and not second_col:
+                logging.debug(f"  Skipping empty row")
+                continue
+            
+            # Detect section start with Header row (e.g., "Trades,Header,...")
+            if (first_col in ['Trades', 'Dividends', 'Withholding Tax', 'Fees', 
+                            'Open Positions', 'Cash Report', 'Interest', 'Change in Dividend Accruals']):
                 current_section = first_col
                 if current_section not in section_data:
                     section_data[current_section] = []
                     section_headers[current_section] = None
-                logging.debug(f"Found section: {current_section}")
+                logging.debug(f"  Found section: {current_section}")
+                
+                # Check if this row is also a header row
+                if second_col == 'Header':
+                    section_headers[current_section] = row.tolist()
+                    logging.debug(f"  Stored header for {current_section}")
+                    continue
+                
+                # Check if this row is a data row
+                if second_col == 'Data':
+                    section_data[current_section].append(row.tolist())
+                    logging.debug(f"  Added data row to {current_section}")
+                    continue
+                
+                # Otherwise it's just a section marker, continue
                 continue
             
-            # Detect section headers (rows with "Header" in second column)
-            if current_section and second_col == 'Header':
-                # Store the header row for this section
-                section_headers[current_section] = row.tolist()
-                logging.debug(f"Found header for {current_section}: {section_headers[current_section][:5]}")
-                continue
-            
-            # Collect data rows (rows with "Data" in second column)
+            # Collect data rows if we're in a section and this is a Data row
             if current_section and second_col == 'Data':
                 section_data[current_section].append(row.tolist())
+                logging.debug(f"  Added data row to {current_section} (fallback)")
         
         # Process each section with its headers
         for section_name, rows in section_data.items():
