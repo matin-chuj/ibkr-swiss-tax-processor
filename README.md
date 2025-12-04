@@ -128,13 +128,160 @@ Kursy mogą być aktualizowane w kodzie lub zaciągane z API SNB/ECB.
 
 ```
 ibkr-swiss-tax-processor/
-├── ibkr_processor. py        # Główna klasa procesora
-├── requirements.txt         # Zależności Python
+├── parser.py               # Moduł parsera CSV Activity Statement
+├── ibkr_processor.py       # Główna klasa procesora podatkowego
+├── test_parser.py          # Testy jednostkowe parsera
+├── example_usage.py        # Przykłady użycia parsera
+├── requirements.txt        # Zależności Python
 ├── README.md               # Dokumentacja
 └── examples/
     └── sample_report/
         ├── tax_report_2025.xlsx
         └── tax_report_2025.html
+```
+
+## Parser Activity Statement (parser.py)
+
+Nowy moduł `parser.py` zapewnia szczegółowe parsowanie plików CSV z IBKR Activity Statement.
+
+### Funkcjonalność parsera:
+
+✅ **Ekstrakcja danych konta:**
+- Numer konta i typ
+- Waluta bazowa
+- Okres raportowania
+- Nazwa brokera
+
+✅ **Net Asset Value (NAV):**
+- Wartość początkowa i końcowa
+- Obsługa multi-walut
+
+✅ **Transakcje:**
+- Akcje (Stocks)
+- Forex
+- Forex conversions
+- Szczegóły: data, symbol, ilość, cena, prowizje
+
+✅ **Dywidendy:**
+- Multi-walutowe (USD, EUR, NOK, PLN, CHF, SEK, JPY, GBP, CAD, AUD)
+- Data, kwota, symbol
+
+✅ **Podatki u źródła:**
+- Według kraju
+- Multi-walutowe
+- Przypisanie do transakcji
+
+✅ **Odsetki:**
+- Multi-walutowe
+- Credit interest
+
+✅ **Opłaty i prowizje:**
+- Activity fees
+- Market data fees
+- Prowizje transakcyjne
+
+✅ **Pozycje otwarte:**
+- Aktualne holdingi
+- Wartości rynkowe
+- Niezrealizowane zyski/straty
+
+✅ **Securities Lending:**
+- Opłaty za pożyczanie papierów wartościowych
+
+✅ **Salda walutowe:**
+- Cash Report
+- Początkowe i końcowe salda
+
+### Użycie parsera:
+
+#### Podstawowe użycie:
+
+```python
+from parser import parse_ibkr_activity_statement
+
+# Parsowanie pliku CSV
+data = parse_ibkr_activity_statement('activity_statement.csv')
+
+# Dostęp do danych
+print(f"Konto: {data['account_info']['account_id']}")
+print(f"Waluta bazowa: {data['account_info']['base_currency']}")
+print(f"Liczba transakcji: {len(data['transactions'])}")
+print(f"Liczba dywidend: {len(data['dividends'])}")
+```
+
+#### Zaawansowane użycie:
+
+```python
+from parser import IBKRActivityStatementParser
+
+# Tworzenie instancji parsera
+parser = IBKRActivityStatementParser('activity_statement.csv')
+
+# Parsowanie
+result = parser.parse()
+
+# Przetwarzanie transakcji
+for tx in result['transactions']:
+    print(f"{tx['date']} {tx['symbol']} {tx['quantity']} @ {tx['price']}")
+
+# Export do JSON
+json_data = parser.to_json()
+with open('output.json', 'w') as f:
+    f.write(json_data)
+```
+
+### Walidacja danych:
+
+Parser automatycznie waliduje:
+
+**Daty:**
+- Format ISO: `YYYY-MM-DD`
+- Format europejski: `DD.MM.YYYY`
+- Format slash: `DD/MM/YYYY`
+- Datetime: `YYYY-MM-DD, HH:MM:SS`
+
+**Kwoty:**
+- Liczby proste: `1000.50`
+- Z separatorem tysięcy: `1,000.50`
+- Z przecinkiem dziesiętnym: `1000,50`
+- Ujemne: `-1000.50` lub `(1000.50)`
+- Z symbolami walut: `$1,000.50`, `€500.25`
+
+### Struktura danych wyjściowych:
+
+```json
+{
+  "account_info": {
+    "account_id": "U11673931",
+    "base_currency": "CHF",
+    "period": "2025-01-01 - 2025-12-03",
+    "account_type": "Individual",
+    "broker_name": "Interactive Brokers"
+  },
+  "nav": {
+    "beginning": {"amount": 100000.00, "currency": "CHF"},
+    "ending": {"amount": 125000.50, "currency": "CHF"}
+  },
+  "transactions": [...],
+  "dividends": [...],
+  "taxes": [...],
+  "fees": [...],
+  "interest": [...],
+  "open_positions": [...],
+  "securities_lending": [...],
+  "forex_balances": [...],
+  "exchange_rates": {...}
+}
+```
+
+### Testowanie:
+
+```bash
+# Uruchomienie testów jednostkowych
+python -m unittest test_parser -v
+
+# Przykłady użycia
+python example_usage.py
 ```
 
 ## Notatki prawne
