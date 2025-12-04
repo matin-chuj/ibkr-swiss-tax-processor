@@ -1,0 +1,102 @@
+{
+  "canton": "Basel-Landschaft",
+  "canton_code": "BL",
+  "tax_year": 2025,
+  "tax_rates": {
+    "income_tax_rate": 0.1055,
+    "wealth_tax_rate": 0.0008,
+    "minimum_taxable_threshold": 50.0
+  },
+  "foreign_tax_credit": {
+    "us_withholding_tax": 0.15,
+    "creditable": true
+  },
+  "currency_rates": {
+    "reference_date": "2025-12-31",
+    "base_currency": "CHF",
+    "rates": {
+      "EUR": 0.93324,
+      "USD": 0.79959,
+      "JPY": 0.0051507,
+      "NOK": 0.07952,
+      "PLN": 0.22084,
+      "SEK": 0.085358,
+      "CHF": 1.0
+    }
+  },
+  "report_sections": {
+    "section_1": {
+      "name": "Vermögensaufstellung",
+      "description": "Asset Position as of December 31, 2025",
+      "categories": [
+        "Schweizer Aktien",
+        "Ausländische Aktien",
+        "Obligationen",
+        "Fonds",
+        "Bargeld CHF",
+        "Fremdwährungen",
+        "Versicherungswert (geschätzt)"
+      ]
+    },
+    "section_2": {
+      "name": "Einkünfte aus Vermögen",
+      "description": "Income from Assets",
+      "categories": [
+        "Dividenden Schweiz",
+        "Dividenden Ausland",
+        "Quellensteuer",
+        "Zinsen",
+        "Securities Lending",
+        "Sonstige Erträge"
+      ]
+    },
+    "section_3": {
+      "name": "Kapitalgewinne/Verluste",
+      "description": "Capital Gains/Losses",
+      "categories": [
+        "Realisierte Gewinne",
+        "Realisierte Verluste",
+        "Netto"
+      ]
+    },
+    "section_4": {
+      "name": "Kosten und Abzüge",
+      "description": "Costs and Deductions",
+      "categories": [
+        "Transaktionsgebühren",
+        "Kontogebühren",
+        "Sonstige Kosten"
+      ]
+    },
+    "section_5": {
+      "name": "Devisenverluste",
+      "description": "Foreign Exchange Losses",
+      "categories": [
+        "FX Gewinne",
+        "FX Verluste",
+        "Netto FX"
+      ]
+    }
+  },
+  "excel_format": {
+    "title_font_size": 16,
+    "header_font_size": 12,
+    "data_font_size": 10,
+    "colors": {
+      "header_bg": "4472C4",
+      "section_bg": "B4C7E7",
+      "positive": "70AD47",
+      "negative": "FF0000"
+    }
+  },
+  "pdf_format": {
+    "page_size": "A4",
+    "margin_left": 50,
+    "margin_right": 50,
+    "margin_top": 50,
+    "margin_bottom": 50,
+    "title_font_size": 20,
+    "header_font_size": 14,
+    "body_font_size": 10
+  }
+}

@@ -145,10 +145,10 @@ class IBKRTaxProcessor:
                 currency = self._safe_str(row[2]) if len(row) > 2 else 'CHF'
                 symbol = self._safe_str(row[3]) if len(row) > 3 else ''
                 date_str = self._safe_str(row[4]) if len(row) > 4 else ''
-                quantity = self._safe_float(row[5]) if len(row) > 5 else 0. 0
-                price = self._safe_float(row[6]) if len(row) > 6 else 0. 0
-                amount = self._safe_float(row[7]) if len(row) > 7 else 0. 0
-                commission = self._safe_float(row[8]) if len(row) > 8 else 0. 0
+                quantity = self._safe_float(row[5]) if len(row) > 5 else 0.0
+                price = self._safe_float(row[6]) if len(row) > 6 else 0.0
+                amount = self._safe_float(row[7]) if len(row) > 7 else 0.0
+                commission = self._safe_float(row[8]) if len(row) > 8 else 0.0
 
                 if symbol and date_str and quantity != 0:
                     self.transactions.append({
@@ -456,10 +456,10 @@ class IBKRTaxProcessor:
                 # Map columns - adjust based on actual IBKR format
                 symbol = self._safe_str(row[1]) if len(row) > 1 else ''
                 currency = self._safe_str(row[2]) if len(row) > 2 else 'CHF'
-                quantity = self._safe_float(row[3]) if len(row) > 3 else 0. 0
-                price = self._safe_float(row[4]) if len(row) > 4 else 0. 0
-                value = self._safe_float(row[5]) if len(row) > 5 else 0. 0
-                unrealized_pl = self._safe_float(row[6]) if len(row) > 6 else 0. 0
+                quantity = self._safe_float(row[3]) if len(row) > 3 else 0.0
+                price = self._safe_float(row[4]) if len(row) > 4 else 0.0
+                value = self._safe_float(row[5]) if len(row) > 5 else 0.0
+                unrealized_pl = self._safe_float(row[6]) if len(row) > 6 else 0.0
 
                 if symbol and quantity != 0:
                     self.open_positions.append({
@@ -482,7 +482,7 @@ class IBKRTaxProcessor:
         if currency == 'CHF' or pd.isna(currency):
             return amount
 
-        rate = self.fx_rates.get(currency, 1. 0)
+        rate = self.fx_rates.get(currency, 1.0)
         return amount * rate
 
     def _safe_float(self, value) -> float:
