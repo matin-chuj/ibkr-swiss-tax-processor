@@ -37,6 +37,9 @@ parsed_statement.json
 validation_report.txt
 test_output.json
 test_validation_report.txt
+final_test.json
+moj_raport.json
+moj_raport_walidacji.txt
 
 # Generated tax reports
 tax_report_*.xlsx
