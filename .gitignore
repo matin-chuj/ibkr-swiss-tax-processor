@@ -40,6 +40,8 @@ test_validation_report.txt
 final_test.json
 moj_raport.json
 moj_raport_walidacji.txt
+verification_test.json
+verification_report.txt
 
 # Generated tax reports
 tax_report_*.xlsx
