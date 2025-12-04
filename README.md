@@ -128,14 +128,40 @@ Kursy mogą być aktualizowane w kodzie lub zaciągane z API SNB/ECB.
 
 ```
 ibkr-swiss-tax-processor/
-├── ibkr_processor. py        # Główna klasa procesora
+├── ibkr_processor.py        # Główna klasa procesora
+├── parser.py                # Activity Statement Parser (NOWY!)
+├── test_parser.py           # Testy parsera
+├── activity_statement.csv   # Przykładowy plik Activity Statement
 ├── requirements.txt         # Zależności Python
 ├── README.md               # Dokumentacja
+├── PARSER_README.md        # Dokumentacja parsera
 └── examples/
     └── sample_report/
         ├── tax_report_2025.xlsx
         └── tax_report_2025.html
 ```
+
+## 🆕 Activity Statement Parser
+
+Projekt został rozszerzony o kompleksowy parser Activity Statement:
+
+✅ **14 sekcji** - Wszystkie główne sekcje Activity Statement  
+✅ **Walidacja danych** - Spójność, formaty dat, sumy kontrolne  
+✅ **Export JSON** - Strukturyzowane dane do analizy  
+✅ **Raport walidacji** - Szczegółowe raporty błędów  
+
+### Użycie parsera
+
+```python
+from parser import ActivityStatementParser
+
+parser = ActivityStatementParser('activity_statement.csv')
+data = parser.parse()
+parser.export_to_json('parsed_statement.json')
+parser.generate_validation_report('validation_report.txt')
+```
+
+Więcej informacji: Zobacz [PARSER_README.md](PARSER_README.md)
 
 ## Notatki prawne
 
